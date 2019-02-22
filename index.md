@@ -1,8 +1,6 @@
-## Welcome to GitHub Pages
+## 欢迎来到本站点
 
-You can use the [editor on GitHub](https://github.com/Lunch650/lunch650.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+本站点主要用来记录某些技术学习过程。
 
 ### Markdown
 
