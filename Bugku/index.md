@@ -32,8 +32,6 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 
   下载题目提供图片，打开报错，kali自带的编辑器还特别贴心的告诉了你是IHDR部分的CRC校验不过。
 
-  ![图片打开报错](../imgs/Bugku/Misc/gnome-shell-screenshot-FB1VXZ.png)    
-
   使用010editor打开，IHDR这部分包含了长度宽度的值，把高的值修改成和宽一致后再打开拿到flag。010editor真是神器，下载特定格式文件的分析插件后，可以直接在下面框框内修改内容。以前都是需要在Edit->Insert/Overwrite/里面修改或更新十六进制内容，修改前还要找修改的内容在哪个地方。
 
   ![修改长宽高](../imgs/Bugku/Misc/gnome-shell-screenshot-V3IQXZ.png)   
@@ -84,3 +82,9 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   可以从图片中看到，最后一段是未知填充。其实这段未知填充和上一段结束接着的地方是FFD9FFD8。直接导出这段Unknow，另存为jpg，于是拿到Flag.
 
   ![还单纯Flag](../imgs/Bugku/Misc/gnome-shell-screenshot-32GWXZ.png)  
+
+8. 猜
+
+  下载图片，发现是女神，答案填写flag{liuyifei}
+
+9. 
