@@ -87,4 +87,43 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 
   下载图片，发现是女神，答案填写flag{liuyifei}
 
-9. 
+9. 宽带信息泄露
+
+  经过查看其它答案，下载的文件应该是一个路由器保存的配置，需要使用RouterPassView软件，暂时身边没有windows系统的。以后再补。
+
+10. 隐写2
+
+  下载文件是一个图片
+  ![隐写2文件](../imgs/Bugku/Misc/20190519122253-816x643.png)
+
+  binwalk走一波
+
+  ![隐写2第一次binwalk](../imgs/Bugku/Misc/gnome-shell-screenshot-8H7F2Z.png)
+
+  看到文件里面似乎躲藏了东西。同时解锁了新技能，使用binwalk的命令`-e`分离文件内容
+
+  `binwalk -e Welcome_.jpg`
+
+  ![隐写2binwalk分离原图片](../imgs/Bugku/Misc/gnome-shell-screenshot-MNNG2Z.png)
+
+  分离出了一个图片提示以及flag.rar文件
+
+  ![隐写2查看提示](../imgs/Bugku/Misc/20190519122807-816x643.png)  
+
+  同时binwalk查看flag文件内容
+
+  ![隐写2查看flag文件内容](../imgs/Bugku/Misc/20190519122842-736x491.png)
+
+  是一个zip文件，打开后发现是加密的。下载了解密软件rarcrack进行破解(记得把文件后缀从rar改成zip)。**这个软件是专门用来破解压缩文件的，想起来当年居然自己还要自己写脚本跑**
+
+  ![隐写2暴力破解flag文件内容](../imgs/Bugku/Misc/gnome-shell-screenshot-A6QL2Z.png)
+
+  解密后又是一张图片
+
+  ![隐写2暴力破解flag文件内图片](../imgs/Bugku/Misc/gnome-shell-screenshot-ZB691Z.png)  
+
+  使用binwalk看没什么问题。使用Linux自带的16进制编辑器查看文件16进制内容，发现末尾有奇怪。**使用了默认自带的16进制软件xxd**
+
+  ![隐写2暴力破解flag文件内图片末尾](../imgs/Bugku/Misc/gnome-shell-screenshot-DMCH2Z.png)
+
+  看来是一个base64加密的，解密后拿到flag.
