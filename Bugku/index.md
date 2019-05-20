@@ -5,9 +5,11 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 ## 0x01 Misc
 
   1. 签到题
+
   没啥好说的，直接关注公众号。
 
   2. 这是一张单纯的图片
+
   下载题目中提供的文件，是一张萌萌的图片。
 
   ![单纯的图片](../imgs/Bugku/Misc/gnome-shell-screenshot-W6U3XZ.png)
@@ -23,10 +25,10 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   ![图片结尾处字符串](../imgs/Bugku/Misc/gnome-shell-screenshot-YWT0XZ.png)
 
   随手使用kali自带的burpsuite翻译，拿到flag
-
   ![burpsuite解码](../imgs/Bugku/Misc/gnome-shell-screenshot-VCLQXZ.png)  
 
   3. 隐写
+
   下载题目提供图片，打开报错，kali自带的编辑器还特别贴心的告诉了你是IHDR部分的CRC校验不过。
 
   使用010editor打开，IHDR这部分包含了长度宽度的值，把高的值修改成和宽一致后再打开拿到flag。010editor真是神器，下载特定格式文件的分析插件后，可以直接在下面框框内修改内容。以前都是需要在Edit->Insert/Overwrite/里面修改或更新十六进制内容，修改前还要找修改的内容在哪个地方。
@@ -34,6 +36,7 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   ![修改长宽高](../imgs/Bugku/Misc/gnome-shell-screenshot-V3IQXZ.png)   
 
   4. telnet
+
   下载了文件是一个pcap包，大致看了一下是一个telnet通讯的过程~~废话，题目都说了好吗~~
 
   跟踪一下TCP流(telnet协议也是TCP/IP中的一种协议)。
@@ -43,6 +46,7 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   额。。   
 
   5. 眼见非实
+
   下载题目提供压缩包，发现里面绝大多数是一些xml配置文件，翻到某个文件看到了flag。
 
   ![眼见非实](../imgs/Bugku/Misc/gnome-shell-screenshot-08O5XZ.png)
@@ -51,6 +55,7 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   // TODO
 
   6. 啊哒
+
   下载题目提供压缩包，里面有一个图片
 
   ![啊哒图片](../imgs/Bugku/Misc/gnome-shell-screenshot-DGTTXZ.png)
@@ -64,6 +69,7 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   ![啊哒解压密码](../imgs/Bugku/Misc/gnome-shell-screenshot-TW2SXZ.png)
 
   7. 又一张图片，还单纯吗
+
   下载题目图片，binwalk看一下，就知道是来搞事情的。
 
   ![还单纯binwalk分析](../imgs/Bugku/Misc/gnome-shell-screenshot-RESWXZ.png)
@@ -77,12 +83,15 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   ![还单纯Flag](../imgs/Bugku/Misc/gnome-shell-screenshot-32GWXZ.png)  
 
   8. 猜
+
   下载图片，发现是女神，答案填写flag{liuyifei}
 
   9. 宽带信息泄露
+
   经过查看其它答案，下载的文件应该是一个路由器保存的配置，需要使用RouterPassView软件，暂时身边没有windows系统的。以后再补。
 
   10. 隐写2
+
   下载文件是一个图片
   ![隐写2文件](../imgs/Bugku/Misc/20190519122253-816x643.png)
 
@@ -119,12 +128,14 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
   看来是一个base64加密的，解密后拿到flag.
 
   11. 多种方法解决
+
   下载来是一个KEY.exe文件，使用binwalk无法分析。直接cat看看情况，发现是一个图片。
   ![多种方法解决查看文件内容](../imgs/Bugku/Misc/gnome-shell-screenshot-IK821Z.png)
 
   使用网上现成的base64转图片拿到二维码，扫描后得到flag。
 
   12. 闪得好快
+
   打开题目是一个不停变换的gif二维码图片。
 
   ![闪得好快图片内容](../imgs/Bugku/Misc/masterGO.gif)
@@ -143,6 +154,7 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 ## 0x02 WEB
 
   1. web2
+  
   查看网页源代码，搞定。
 
   2. xxx
