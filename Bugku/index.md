@@ -128,7 +128,33 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 
   看来是一个base64加密的，解密后拿到flag.
 
+11. 多种方法解决
+
+  下载来是一个KEY.exe文件，使用binwalk无法分析。直接cat看看情况，发现是一个图片。
+  ![多种方法解决查看文件内容](../imgs/Bugku/Misc/gnome-shell-screenshot-IK821Z.png)
+
+  使用网上现成的base64转图片拿到二维码，扫描后得到flag。
+
+12. 闪得好快
+
+  打开题目是一个不停变换的gif二维码图片。
+
+  ![闪得好快图片内容](../imgs/Bugku/Misc/masterGO.gif)
+
+  需要分析二维码图片就需要下载一个gif分析工具，叫做stegsolve。因为这个工具kali里面没有，所以先执行以下操作进行安装。
+  ```
+  wget http://www.caesum.com/handbook/Stegsolve.jar -O stegsolve.jar
+
+  chmod +x stegsolve.jar
+  ```
+  安装好以后可以看到执行命令的目录下面已经有stegsolve.jar文件了。这时候使用命令打开文件
+  `java -jar stegsolve.jar`
+
+  软件打开后首先加载文件，然后使用Analyse->frame Browser就可以一帧一帧的二维码图了。把这18张图片的内容都扫描出来，就是答案了。
+
 ## 0x02 WEB
 
   1. web2
   查看网页源代码，搞定。
+
+  2. xxx
