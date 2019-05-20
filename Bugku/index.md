@@ -1,14 +1,14 @@
 # Bugku CTF WriteUp
 
-  Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练习并借此熟悉Kali的工具
+Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练习并借此熟悉Kali的工具
 
-  ## 0x00 Misc
+## 0x00 Misc
 
-  1. 签到题
+1. 签到题
 
   没啥好说的，直接关注公众号。
 
-  2. 这是一张单纯的图片
+2. 这是一张单纯的图片
 
   下载题目中提供的文件，是一张萌萌的图片。
 
@@ -28,7 +28,7 @@
 
   ![burpsuite解码](../imgs/Bugku/Misc/gnome-shell-screenshot-VCLQXZ.png)  
 
-  3. 隐写
+3. 隐写
 
   下载题目提供图片，打开报错，kali自带的编辑器还特别贴心的告诉了你是IHDR部分的CRC校验不过。
 
@@ -36,7 +36,7 @@
 
   ![修改长宽高](../imgs/Bugku/Misc/gnome-shell-screenshot-V3IQXZ.png)   
 
-  4. telnet
+4. telnet
 
   下载了文件是一个pcap包，大致看了一下是一个telnet通讯的过程~~废话，题目都说了好吗~~
 
@@ -46,7 +46,7 @@
 
   额。。   
 
-  5. 眼见非实
+5. 眼见非实
 
   下载题目提供压缩包，发现里面绝大多数是一些xml配置文件，翻到某个文件看到了flag。
 
@@ -55,7 +55,7 @@
   对于这种题目，因为在之前的考试中也遇到过，是否应该考虑写一个遍历字符串的脚本来处理呢？
   // TODO
 
-  6. 啊哒
+6. 啊哒
 
   下载题目提供压缩包，里面有一个图片
 
@@ -69,7 +69,7 @@
 
   ![啊哒解压密码](../imgs/Bugku/Misc/gnome-shell-screenshot-TW2SXZ.png)
 
-  7. 又一张图片，还单纯吗
+7. 又一张图片，还单纯吗
 
   下载题目图片，binwalk看一下，就知道是来搞事情的。
 
@@ -83,15 +83,15 @@
 
   ![还单纯Flag](../imgs/Bugku/Misc/gnome-shell-screenshot-32GWXZ.png)  
 
-  8. 猜
+8. 猜
 
   下载图片，发现是女神，答案填写flag{liuyifei}
 
-  9. 宽带信息泄露
+9. 宽带信息泄露
 
   经过查看其它答案，下载的文件应该是一个路由器保存的配置，需要使用RouterPassView软件，暂时身边没有windows系统的。以后再补。
 
-  10. 隐写2
+10. 隐写2
 
   下载文件是一个图片
   ![隐写2文件](../imgs/Bugku/Misc/20190519122253-816x643.png)
