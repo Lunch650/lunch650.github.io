@@ -2,9 +2,9 @@
 
 Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练习并借此熟悉Kali的工具
 
-## 0x00 Misc
+## 0x01 Misc
 
-1. 签到题
+  1. 签到题
 
   没啥好说的，直接关注公众号。
 
