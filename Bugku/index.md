@@ -159,6 +159,32 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 
   软件打开后首先加载文件，然后使用Analyse->frame Browser就可以一帧一帧的二维码图了。把这18张图片的内容都扫描出来，就是答案了。
 
+13. 白哥的鸽子:
+
+  下载来一张图片。binwalk看了一下没什么特别的，用xxd看看16进制，发现末尾有古怪。
+
+  ![白哥的鸽子_图片内容](../imgs/Bugku/Misc/gnome-shell-screenshot-XQL81Z.png)
+
+  JPEG图片开头是ffd8，末尾应该是ffd9.后面多出来一些内容，先把16进制转换成字符串
+
+  ![白哥的鸽子_解码](../imgs/Bugku/Misc/gnome-shell-screenshot-W0M11Z.png)
+
+  按经验判断是一个栅栏密码，上网解码得到flag
+
+  ![白哥的鸽子_栅栏密码解密](../imgs/Bugku/Misc/gnome-shell-screenshot-RSTD2Z.png)
+
+14. linux
+
+  这个题目有几种解法。
+
+  解法一：
+
+  下载到文件后，用binwalk分析一波，看到好像是由几个文件组成的。于是使用binwalk -e的命令将文件都分解出来，得到一个flag文本。里面就是flag
+
+  解法二:
+
+  下载到文件后使用`strings flag | grep flag`找其中的flag内容。
+
 ## 0x02 WEB
 
 1. web2
