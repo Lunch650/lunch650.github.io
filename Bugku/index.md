@@ -185,10 +185,58 @@ Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练�
 
   下载到文件后使用`strings flag | grep flag`找其中的flag内容。
 
+15. 隐写3
+
+  下载来是一个图片。打开后提示CRC校验码出错，考虑是宽高被改动过了无法显示。这边有个小提示，windows下会忽略CRC校验码错误，显示图片。但是linux下会因为CRC校验码出错无法显示。
+
+  使用系统自带工具hexeditor打开，17~20字节00 00 02 A7是宽，21~24字节00 00 01 00是高，30~33字节6D 7C 71 35是CRC校验码。
+
+  ![隐写3图片的16进制](../imgs/Bugku/Misc/gnome-shell-screenshot-D30H2Z.png)
+
+  随便修改了一下高度，图片还是无法显示(如果是windows系统里面，修改就会正常显示了)。于是在网上找了现成的计算代码，运行后会重新生成一个正常的图片。
+  ```
+import zlib
+import struct
+#读文件
+file = 'dabai.png'
+fr = open(file,'rb').read()
+data = bytearray(fr[12:29])
+crc32key =  0x6D7C7135 #需要自己填写30～33的16进制校验码
+#crc32key = eval(str(fr[29:33]).replace('\\x','').replace("b'",'0x').replace("'",''))
+n = 4095 #理论上0xffffffff,但考虑到屏幕实际，0x0fff就差不多了
+for w in range(n):#高和宽一起爆破
+    width = bytearray(struct.pack('>i', w))#q为8字节，i为4字节，h为2字节
+    for h in range(n):
+        height = bytearray(struct.pack('>i', h))
+        for x in range(4):
+            data[x+4] = width[x]
+            data[x+8] = height[x]
+            #print(data)
+        crc32result = zlib.crc32(data)
+        if crc32result == crc32key:
+            print(width,height)
+            #写文件
+            newpic = bytearray(fr)
+            for x in range(4):
+                newpic[x+16] = width[x]
+                newpic[x+20] = height[x]
+            fw = open(file+'.png','wb')#保存副本
+            fw.write(newpic)
+            fw.close
+  ```
+  ![隐写3的FLAG](../imgs/Bugku/Misc/gnome-shell-screenshot-22201Z.png)
+
+
 ## 0x02 WEB
 
 1. web2
 
   查看网页源代码，搞定。
 
-2. xxx
+2. 计算器
+
+  登陆框只能填入一个数，无法填入完整答案。查看网页源代码修改字数限制，完成。
+
+3. web基础GET
+
+  浏览器地址栏构造相应内容，完成。
