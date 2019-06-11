@@ -273,3 +273,26 @@ for w in range(n):#高和宽一起爆破
 6. web3
 
   打开页面是一个无聊的无限弹窗,ctrl+u查看到源代码后解码,完毕.
+
+7. 域名解析
+
+  > 听说把 flag.baidu.com 解析到123.206.87.240 就能拿到flag
+
+  直接修改/etc/hosts文件就行了
+
+8. 你必须让他停下
+
+  页面里面有段js是让网页不停的自动刷新.设置浏览器不允许js,然后手动刷新几次界面就看到flag.
+
+9. 本地包含
+
+  ```
+  <?php
+      include "flag.php";
+      $a = @$_REQUEST['hello'];
+      eval( "var_dump($a);");
+      show_source(__FILE__);
+  ?>
+  ```
+  实际上就是要构造内容传递到eval语句中，将'var_dump('这部分进行闭合。所以可以构造hello的值为);show_source(%27%flag.php27);//
+  这个题目最主要的就是有一句eval，var_dump函数无所谓是什么，换成md5函数都是可以的。有点类似SQL注入。
