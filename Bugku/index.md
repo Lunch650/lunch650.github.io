@@ -338,3 +338,58 @@ for w in range(n):#高和宽一起爆破
   ![管理员系统](../imgs/Bugku/Web/gnome-shell-screenshot-GRLJ3Z.png)
 
   获得以上信息后首先解决IP受限问题，修改X-Forwarded-For为127.0.0.1，后尝试以test123,test123登陆，提示密码错误。于是把用户名修改为admin，密码为test123成功登陆。
+
+15. Web4
+
+  打开页面提示看源代码，发现两个js变量p1,p2.
+  ![Web4](../imgs/Bugku/Web/gnome-shell-screenshot-KKWC3Z.png)
+  利用浏览器的Console将两个变量使用unescape函数解析出来，组合成一组字符串。填入框中得到flag。
+
+16. flag在index里
+
+  根据查看首页、show.php、以及首页上的超链接，考虑到是一个文件包含漏洞。
+  ![flag在index里1](../imgs/Bugku/Web/gnome-shell-screenshot-LZIB3Z.png)
+
+  因此按照套路构造协议url为xxx:/post/?file=php://filter/read=convert.base64-encode/resource=./index.php，拿到index.php的base64码
+  ![flag在index里2](../imgs/Bugku/Web/gnome-shell-screenshot-2XJS3Z.png)
+
+  解码以后得到flag.
+
+17. 输入密码查看flag
+
+  一个简单的爆破题目，提示了密码是5个数字。不详细写了。
+
+18. 点击一百万次
+
+  提示查看js，发现要求变量clicks到达100000次才出现flag.于是在console中输入clicks=10000，再次点击中间图案得到flag.
+
+19. 备份是个好习惯
+
+  题目提示备份,使用dirb工具查找后缀名为.bak的文件,得到index.php.bak.分析页面内容(后面注释是我添加的)
+  ```
+  <?php
+  include_once "flag.php";
+  ini_set("display_errors", 0);
+  //获得URL中包含?之后的字符串
+  $str = strstr($_SERVER['REQUEST_URI'], '?');
+  //去掉?
+  $str = substr($str,1);
+  //替换到字符串中的key。但是很明显的漏洞是可以通过构造kkeyey绕过。
+  $str = str_replace('key','',$str);
+  //将$str变量中key1=a&key2=b的内容转换为$key1=a;$key2=b;
+  parse_str($str);
+  echo md5($key1);
+
+  echo md5($key2);
+  //key1与key2的md5值要相等，但是key1和key2的值不相等
+  if(md5($key1) == md5($key2) && $key1 !== $key2){
+      echo $flag."取得flag";
+    }
+  ?>
+  ```
+  通过以上代码分析，构造url比较简单，而md5那个地方以前遇到过，是md5和sha1都存在的一个漏洞，因为这两个函数无法解析数组,md5(key1[])会返回false，因此可以通过构造key1[]=a&key2[]=b解决。
+  最终构造URL:?kekeyy1[]=a&kkeyey2[]=b
+
+20. 成绩单
+
+  一道简单的注入题目。不详细写了。
