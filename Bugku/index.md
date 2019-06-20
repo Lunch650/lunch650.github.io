@@ -393,3 +393,89 @@ for w in range(n):#高和宽一起爆破
 20. 成绩单
 
   一道简单的注入题目。不详细写了。
+
+21. 秋名山老司机
+
+  一道似曾相似的题目。页面中给出了一个超长计算式，需要迅速计算并把结果post到页面中。并且页面有中英文两种版本。
+  ![秋名山老司机](../imgs/Bugku/Web/gnome-shell-screenshot-3VIB3Z.png)
+
+  ![秋名山老司机](../imgs/Bugku/Web/gnome-shell-screenshot-7CHG3Z.png)
+
+  仔细观察，知道算式是放在一个div里面。于是写出脚本拿到flag：
+  ```
+  import requests
+  from bs4 import BeautifulSoup
+
+  url = 'http://123.206.87.240:8002/qiumingshan/'
+  req =  requests.Session()
+  r_page1 = req.get(url)
+  soup = BeautifulSoup(r_page1.content,'lxml')
+  result = eval(soup.body.div.text[:-3])
+  print(result)
+  result = {'value': result}
+  r_page2 = req.post(url=url,data=result)
+  print(r_page2.content)
+  ```
+  需要注意的是，接受页面和提交结果都应该放在一个Session下来做，所以用了`requests.Session()`
+
+22. Web6
+
+  从原页面头中得到一个flag参数，里面都是base64码
+
+  ![Web6](../imgs/Bugku/Web/gnome-shell-screenshot-WELS3Z.png)
+
+  解码以后又拿到一个base64码
+
+  ![Web6](../imgs/Bugku/Web/gnome-shell-screenshot-ZMQN3Z.png)
+  再解码是一串数字。因为base64码不是不变的，于是写脚本提交数字，拿到flag.
+  ```
+  import requests
+  import base64
+
+  url = 'http://123.206.87.240:8002/web6/'
+  req =  requests.Session()
+  r = req.get(url)
+  page1_result = base64.b64decode(r.headers['flag'])
+  payload = str(page1_result).split(':')[1]
+  payload = base64.b64decode(payload)
+  data = {'margin': payload}
+  r2 = req.post(url=url,data=data)
+  print(r2.content)
+  ```
+
+23. cookies欺骗
+
+  呼，感觉者这几题都是需要写代码，好麻烦。
+  页面打开就发现URL不平常，包含了两个参数分别是line和filename
+  解析字符串a2V5cy50eHQ=发现是keys.txt的base64码。于是把index.php进行base64编码后替换filename的值，再对代表行数的line不停的赋值1，2，3，4。。。,就得到了index.php文件的源代码。
+
+  ```
+  error_reporting(0);
+  $file=base64_decode(isset($_GET['filename'])?$_GET['filename']:"");
+  $line=isset($_GET['line'])?intval($_GET['line']):0;
+  if($file=='') header("location:index.php?line=&filename=a2V5cy50eHQ=");
+  $file_list = array(
+    '0' =>'keys.txt',
+    '1' =>'index.php',
+    );
+    if(isset($_COOKIE['margin']) && $_COOKIE['margin']=='margin'){
+      $file_list[2]='keys.php';
+    }
+    if(in_array($file, $file_list)){
+      $fa = file($file);
+      echo $fa[$line];
+    }
+  ?>
+  ```
+  看来是需要在COOKIE中加入margin。并且filename的文件名改成keys.php的base64码
+  ![cookies欺骗](../imgs/Bugku/Web/gnome-shell-screenshot-3JS82Z.png)
+
+24. never give up
+
+  打开页面没什么内容，F12查看源代码得到一个页面地址1p.html
+  ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-90RC3Z.png)  
+  但是输入地址后浏览器就自动跳转了，使用burpsuite查看，得到1p.html中的一大段base64码.
+  ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-SJJQ3Z.png)
+
+  解密后就看到有点复杂的逻辑，但是不用管它。直接发现有个f4l2a3g.txt文件，访问后拿到flag
+  ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-ZKZA3Z.png)
