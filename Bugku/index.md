@@ -593,3 +593,38 @@ for w in range(n):#高和宽一起爆破
   这个一看就知道是利用md5函数无法计算数组以及strcmp(参数1,参数2)(是比较两个参数字符串长度)中，无法比较数组的特点来构造。构造一下url参数拿到flag.
 
   `?v1[]=a&v2[]=b&v3[]=c`
+
+28. login1
+
+  页面提示`SQL约束攻击`，点进去看到是一个普通的登陆页面和注册页面。
+  ![login1](../imgs/Bugku/Web/gnome-shell-screenshot-9BVJ4Z.png)
+
+  尝试注册admin时候提示已经注册过.
+  ![login1](../imgs/Bugku/Web/gnome-shell-screenshot-XMFN4Z.png)
+
+  根据提示找了一下SQL约束攻击的大概意思。比如当前的条件是：我创建了一个表，表里面的username字段格式是varchar(25)，而且当前录入了`admin`进去。这时候如果我再注册admin，就会提示我admin已存在。但是如果我注册了一个用户`admin   (20个空格)a`那么数据库在判断的时候首先会认为`admin   (20个空格)a`和`admin`不是一样的内容，然后把`admin   (20个空格)a`前面25个字符截断后存入。这时候就能用新注册的那个密码覆盖掉以前的密码。就完成了所谓的`SQL约束攻击`。最终拿到flag.
+
+29. 你从哪里来
+
+  看题目就知道是一个考察referer用法的，比较简单。只是注意一下一般都要写成`http://xxx.com`这样的格式。
+
+30. md5 collision
+
+  题目上来就要求给一个a的值`please input a`。在URL后面构造?a=1后页面提示`false`。在网上找到这个题目页面的源代码(为什么给我的题目里面没有源代码？)
+
+  ```
+  <?php
+  $md51 = md5('QNKCDZ0');
+  $a = @$_GET['a'];
+  $md52 = @md5($a);
+  if(isset($a)){
+    if ($a != 'QNKCDZO' && $md51 == $md52) {
+      echo "nctf{*****************}";
+      } else {
+        echo "false!!!";
+        }
+      }
+        else{echo "please input a";}
+        ?>
+  ```
+  可以看到要求是a的值不能等于`QNKCDZ0`，但是`QNKCDZ0`的MD5值要和a的MD5值相等。这个题目和之前我们做的比较两个变量md5值得题目不一样的地方在于：之前的题目我们可以控制两个比较的变量，这个题目只能控制一个。于是我们先看看`md5('QNKCDZ0')`的值是`0e8304004519934940580242199033910`，好的有搞头了，因为php这个伟大的语言会把0e开头的哈希字符串认为是0，所以当md5函数计算出来的值是以0e开头的，那么PHP就会把它认为是0了。
