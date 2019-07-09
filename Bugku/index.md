@@ -627,4 +627,43 @@ for w in range(n):#高和宽一起爆破
         else{echo "please input a";}
         ?>
   ```
-  可以看到要求是a的值不能等于`QNKCDZ0`，但是`QNKCDZ0`的MD5值要和a的MD5值相等。这个题目和之前我们做的比较两个变量md5值得题目不一样的地方在于：之前的题目我们可以控制两个比较的变量，这个题目只能控制一个。于是我们先看看`md5('QNKCDZ0')`的值是`0e8304004519934940580242199033910`，好的有搞头了，因为php这个伟大的语言会把0e开头的哈希字符串认为是0，所以当md5函数计算出来的值是以0e开头的，那么PHP就会把它认为是0了。
+  可以看到要求是a的值不能等于`QNKCDZ0`，但是`QNKCDZ0`的MD5值要和a的MD5值相等。这个题目和之前我们做的比较两个变量md5值得题目不一样的地方在于：之前的题目我们可以控制两个比较的变量，这个题目只能控制一个。于是我们先看看`md5('QNKCDZ0')`的值是`0e8304004519934940580242199033910`，好的有搞头了，因为php这个伟大的语言会把0e开头的哈希字符串认为是0，所以当md5函数计算出来的值是以0e开头的，那么PHP就会把它认为是0了(提示:MD5就是进行hash运算)。所以我们只需要把a的值构造成一个md5值开头为0e的字符串就行。网上找到`a=s878926199a`。拿到flag.
+
+31. 程序员本地网站
+
+  一个考察X-Forwarded-For的，就不详细写了。
+
+32. 各种绕过
+
+  ![各种绕过](../imgs/Bugku/Web/gnome-shell-screenshot-CPNN4Z.png)
+
+  考验sha1函数数组漏洞以及post\get方式提交，没什么难度。但是有个问题，我使用burpsuite怎么提交都出不了flag，后来写了Python小脚本才出现的。看来有必要下载一个hackbar之类的工具。
+
+33. web8
+
+  ![web8](../imgs/Bugku/Web/gnome-shell-screenshot-KIVR4Z.png)
+
+  这个题目有两个解法。
+
+  第一个解法：根据题目提示有txt文件，扫描目录知道可以访问flag.txt。内容是flags。既然有文件，那么直接构造`ac=flags`,然后利用file_get_contents函数构造`fn=flag.txt`就能拿到flag.
+
+  ![web8](../imgs/Bugku/Web/gnome-shell-screenshot-FVCV4Z.png)
+
+  第二个解法：利用伪协议。原理是`file_get_contents()`函数不仅仅可以读取文件内容，还可以读取url以及伪协议内容。
+  那么直接利用php://input这个伪协议获取post中传递的内容的特性。具体构造见下图：
+
+  ![web8](../imgs/Bugku/Web/gnome-shell-screenshot-M5J24Z.png)
+
+  奇怪的是，这个方法我用hackbar根本不出结果，用burp就有结果，晕了。
+
+34. 细心
+
+  ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-ONFN4Z.png)
+
+  细心看了一下应该是一个假的报错页面。于是用dirb扫描一下后台，发现另外一个页面
+
+  ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-Q76Z4Z.png)
+
+  看到下面有对x进行比较，几次尝试以后将`x=admin`，拿到flag(这个题真没什么意思)
+
+  ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-38LP4Z.png)
