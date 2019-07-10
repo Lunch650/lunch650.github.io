@@ -667,3 +667,41 @@ for w in range(n):#高和宽一起爆破
   看到下面有对x进行比较，几次尝试以后将`x=admin`，拿到flag(这个题真没什么意思)
 
   ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-38LP4Z.png)
+
+35. 求getshell
+
+  题目如下:
+  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-LSOM4Z.png)
+
+  看出来是一个上传题。
+
+  我们先尝试上传一个php一句话文件。
+
+  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-QPPR4Z.png)
+
+  显示无法通过。那么修改一下Content-type内容，将其修改为图片格式。
+
+  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-SVG34Z.png)
+
+  还是不行。最后看了其他人的WriteUp，是需要修改几个地方：
+
+  1. 第一个Content-Type内容，需要经过大小写变换。(网上说是为了绕过waf，无法证实)
+  2. 第二个是文件后缀名,发现php5可以通过。
+  3. 第三个是上传文件后判断的Content-Type内容，这个内容会随着你上传文件的后缀判断。
+
+  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-4DXS4Z.png)
+
+  也不知道哪个神仙做出来的。然后我在网上收集了一些上传方面的资料：
+
+  一般说来，上传验证有几种套路:
+
+  - 客户端JavaScript验证:
+    这种的没啥难度。绕过方式是直接抓包修改就行。
+  - 文件后缀验证:
+    就是上图第2个验证，绕过方式是抓包修改,可以使用其他名称如php2,php3,php4,PhP等绕过后缀名黑名单检验。
+  - Content-type验证:
+    就是上图第3个验证，绕过方式是抓包修改。
+  - 文件头验证:
+    比如服务器要求上传的是gif格式的文件，他会验证上传内容的开头符不符合gif格式文件的开头，绕过方式是在Burpsuite中抓包修改，加入GIF格式头，例如:`GIF89a<?php phpinfo(); ?>`
+  - 文件内容检测验证：
+    这个就有点骚包了。验证会对上传内容进行验证，过滤点一些敏感函数，例如assert、eval等。这时候可以用两步操作：**第一步**上传内容为一句话的txt文件。**第二步**`<?php include('xxx.txt');?>`
