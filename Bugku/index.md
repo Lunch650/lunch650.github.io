@@ -705,3 +705,62 @@ for w in range(n):#高和宽一起爆破
     比如服务器要求上传的是gif格式的文件，他会验证上传内容的开头符不符合gif格式文件的开头，绕过方式是在Burpsuite中抓包修改，加入GIF格式头，例如:`GIF89a<?php phpinfo(); ?>`
   - 文件内容检测验证：
     这个就有点骚包了。验证会对上传内容进行验证，过滤点一些敏感函数，例如assert、eval等。这时候可以用两步操作：**第一步**上传内容为一句话的txt文件。**第二步**`<?php include('xxx.txt');?>`
+
+36. INSERT INTO注入
+
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-B8C24Z.png)
+
+  不论是题目的提示还是自己对代码的审计，应该看得出来以下几个规则:
+
+  1. 第一行`error_reporting(0)`代表不会报错，就算错误也会正常执行。所以注入的话应该是盲注。
+  2. explode函数对逗号进行了过滤
+  3. 倒数第二行没有对X-Forwarded-For的内容进行过滤，可以从这个地方尝试注入
+  4. SQL语句是INSERT语句，插入就是插入没有对错之分，因此在对待这个盲注时无法使用布尔型盲注。
+
+  根据以上条件，判断出应该是要进行时间盲注。首要考虑sleep函数往哪放，因为这个语句是一个INSERT语句，所以我先尝试将insert语句闭合，插入`1'; select sleep(5);#`。这时候语句就变成了`insert into table_name(column_name) value('1');(select sleep(5));#')`。但可能是通过PHP执行的原因，无法执行两条连续的语句。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6NEJ4Z.png)
+
+  我在Mysql中可以执行两条。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-LL1Y4Z.png)  
+
+  所以只能在INSERT语句下想办法，先构造`1' and sleep(5) and '1'='1`。执行后果然是延时了。
+
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-IMWR4Z.png)  
+  这时候后台语句就变成了`insert into table_name(column_name) value('1' and sleep(5) and '1'='1')`。在MySQL下看，这段内容是插入了0.因为`SELECT SLEEP(5)`的查询结果就是0
+
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6Q7W4Z.png)
+
+  还要注意的是，第一个字不能是英文。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-XSIR4Z.png)  
+
+  现在已经构造好大致的payload框架，然后是按照需要在刚才的sleep()函数附近修改内容。常规操作是使用if(条件判断,内容为真时延迟sleep(n),内容为假时)，但由于题目条件第二条对逗号进行了过滤不能直接使用if函数，那么换个姿势使用`CASE WHEN 条件判断 THEN 延迟SLEEP(5) ELSE 1 END`
+
+  1. 第一步是试探数据库的字符数，构造语句`1' and (SELECT CASE WHEN  length(database())=1 THEN SLEEP(5) ELSE 1 END) AND '1'='1`在burp里面跑一下(burp的设置见https://www.jianshu.com/p/5d34b3722128)
+  其中length(database())的数值设置为变量。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-PD9K4Z.png)
+
+  然后把页面timeout时间设置低一点，一般要低于我们sleep的时间。这样设置的原因是当出现可能触发sleep的时候结果会提示timeout。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6Q6W4Z.png)  
+
+  走两步：
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-4GT34Z.png)
+
+  2. 第二步是按照顺序一个个猜测字符内容。`1' and (SELECT CASE WHEN  substr(database() from 1 for 1)='a' THEN SLEEP(5) ELSE 1 END) AND '1'='1`
+
+  需要注意的是由于逗号被过滤了，因此`limit 1,1`这种是无法完成的，但是可以通过`from 1 for 1`实现替代。此外这个payload里面有两个地方需要进行替换，第一个是`from 1 for 1`的第一个1，第一步我们得到database()名称一共有5个字符，所以第一个1，应该是1-5。第二个是`'a'`应该遍历所有字符来测试。
+  让我们看看这样两个变量是怎么通过burp操作的。
+
+  因为有两个变量，所以设置攻击方式为cluster bomb
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-KX4Q4Z.png)  
+
+  设置好两个变量的内容，第一个变量是从1到5。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-UQOM4Z.png)
+
+  第二个变量是一些字符串集合，实际上截图里面的还不够完整，应该加上大写字母以及符号。
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-TJHJ4Z.png)  
+
+  设置好以后开始攻击，最后查看timeout的反馈页面拿到结果：web15
+
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-O5R34Z.png)    
+
+  虽然达成目的了，但是这种方法的效率是非常低的，因为如果在对第一个字符的第一次测试中就知道结果是a,那么实际上是不用继续测试'bcdefg...'的。但是机器不知道我们拿到需要的结果了还会继续测试。因此需要找找其他方法来完成这个猜测的过程
