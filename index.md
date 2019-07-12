@@ -2,8 +2,9 @@
 
 本站点主要用来记录某些技术学习过程。
 
-- [bugku](https://lunch650.github.io/Bugku/)
-
+- bugku
+  - [Misc类](https://lunch650.github.io/Bugku/Misc/)
+  - [Web类](https://lunch650.github.io/Bugku/Web/)
 
 
 联系邮箱lunch650@qq.com

@@ -1,233 +1,4 @@
-# Bugku CTF WriteUp
-
-Bugku网站有比较全的[CTF题目](https://ctf.bugku.com/)。用来刷题练习并借此熟悉Kali的工具
-
-## 0x01 Misc
-
-1. 签到题
-
-  没啥好说的，直接关注公众号。
-
-2. 这是一张单纯的图片
-
-  下载题目中提供的文件，是一张萌萌的图片。
-
-  ![单纯的图片](../imgs/Bugku/Misc/gnome-shell-screenshot-W6U3XZ.png)
-
-  kali中自带了binwalk,直接binwalk分析一波，没有异常。
-
-  ![binwalk分析](../imgs/Bugku/Misc/gnome-shell-screenshot-IQO3XZ.png)
-
-  考虑查看图片编码内容，kali没有比较方便的编辑器，到[官方下载](http://www.sweetscape.com/download/010editor/)010editor([使用教程](https://zhuanlan.zhihu.com/p/31195150))
-
-  安装好之后打开图片，看到文件末尾有些奇怪的字符像html编码
-
-  ![图片结尾处字符串](../imgs/Bugku/Misc/gnome-shell-screenshot-YWT0XZ.png)
-
-  随手使用kali自带的burpsuite翻译，拿到flag
-  ![burpsuite解码](../imgs/Bugku/Misc/gnome-shell-screenshot-VCLQXZ.png)  
-
-
-3. 隐写
-
-  下载题目提供图片，打开报错，kali自带的编辑器还特别贴心的告诉了你是IHDR部分的CRC校验不过。
-
-  使用010editor打开，IHDR这部分包含了长度宽度的值，把高的值修改成和宽一致后再打开拿到flag。010editor真是神器，下  载特定格式文件的分析插件后，可以直接在下面框框内修改内容。以前都是需要在Edit->Insert/Overwrite/里面修改或更新十 六进制内容，修改前还要找修改的内容在哪个地方。
-
-  ![修改长宽高](../imgs/Bugku/Misc/gnome-shell-screenshot-V3IQXZ.png)   
-
-4. telnet
-
-  下载了文件是一个pcap包，大致看了一下是一个telnet通讯的过程~~废话，题目都说了好吗~~
-
-  跟踪一下TCP流(telnet协议也是TCP/IP中的一种协议)。
-
-  ![跟踪TCP流](../imgs/Bugku/Misc/gnome-shell-screenshot-U5KPXZ.png)
-
-  额。。   
-
-5. 眼见非实
-
-  下载题目提供压缩包，发现里面绝大多数是一些xml配置文件，翻到某个文件看到了flag。
-
-  ![眼见非实](../imgs/Bugku/Misc/gnome-shell-screenshot-08O5XZ.png)
-
-  对于这种题目，因为在之前的考试中也遇到过，是否应该考虑写一个遍历字符串的脚本来处理呢？
-  // TODO
-
-6. 啊哒
-
-  下载题目提供压缩包，里面有一个图片
-
-  ![啊哒图片](../imgs/Bugku/Misc/gnome-shell-screenshot-DGTTXZ.png)
-
-  常规操作，binwalk走几步
-
-  ![啊哒binwalk分析](../imgs/Bugku/Misc/gnome-shell-screenshot-CRR3XZ.png)  
-
-  发现文件末尾有压缩包，使用010editor把末尾内容复制出来另存为zip格式，压缩包里面有flag文件。但是压缩包是加密的，本想暴力破解但是比较难猜，回头发现这个题目的第一张图，相机位置有可疑代码。解码后拿到解压密码，顺利解题。
-
-  ![啊哒解压密码](../imgs/Bugku/Misc/gnome-shell-screenshot-TW2SXZ.png)
-
-7. 又一张图片，还单纯吗
-
-  下载题目图片，binwalk看一下，就知道是来搞事情的。
-
-  ![还单纯binwalk分析](../imgs/Bugku/Misc/gnome-shell-screenshot-RESWXZ.png)
-
-  看这个也不知道怎么下手，直接使用010editor。真的，这个软件的分析插件可以吹爆，太好用了，完全适合解决这类CTF题目。
-
-  ![还单纯010分析](../imgs/Bugku/Misc/gnome-shell-screenshot-08C1XZ.png)  
-
-  可以从图片中看到，最后一段是未知填充。其实这段未知填充和上一段结束接着的地方是FFD9FFD8。直接导出这段Unknow，另存为jpg，于是拿到Flag.
-
-  ![还单纯Flag](../imgs/Bugku/Misc/gnome-shell-screenshot-32GWXZ.png)  
-
-
-8. 猜
-
-  下载图片，发现是女神，答案填写flag{liuyifei}
-
-9. 宽带信息泄露
-
-  经过查看其它答案，下载的文件应该是一个路由器保存的配置，需要使用RouterPassView软件，暂时身边没有windows系统的。以后再补。
-
-10. 隐写2
-
-  下载文件是一个图片
-  ![隐写2文件](../imgs/Bugku/Misc/20190519122253-816x643.png)
-
-  下载文件是一个图片
-  ![隐写2文件](../imgs/Bugku/Misc/20190519122253-816x643.png)
-
-  binwalk走一波
-
-  ![隐写2第一次binwalk](../imgs/Bugku/Misc/gnome-shell-screenshot-8H7F2Z.png)
-
-  看到文件里面似乎躲藏了东西。同时解锁了新技能，使用binwalk的命令`-e`分离文件内容
-
-  `binwalk -e Welcome_.jpg`
-
-  ![隐写2binwalk分离原图片](../imgs/Bugku/Misc/gnome-shell-screenshot-MNNG2Z.png)
-
-  分离出了一个图片提示以及flag.rar文件
-
-  ![隐写2查看提示](../imgs/Bugku/Misc/20190519122807-816x643.png)  
-
-  同时binwalk查看flag文件内容
-
-  ![隐写2查看flag文件内容](../imgs/Bugku/Misc/20190519122842-736x491.png)
-
-  是一个zip文件，打开后发现是加密的。下载了解密软件rarcrack进行破解(记得把文件后缀从rar改成zip)。**这个软件是专门用来破解压缩文件的，想起来当年居然自己还要自己写脚本跑**
-
-  ![隐写2暴力破解flag文件内容](../imgs/Bugku/Misc/gnome-shell-screenshot-A6QL2Z.png)
-
-  解密后又是一张图片
-
-  ![隐写2暴力破解flag文件内图片](../imgs/Bugku/Misc/gnome-shell-screenshot-ZB691Z.png)  
-
-  使用binwalk看没什么问题。使用Linux自带的16进制编辑器查看文件16进制内容，发现末尾有奇怪。**使用了默认自带的16进制软件xxd**
-
-  ![隐写2暴力破解flag文件内图片末尾](../imgs/Bugku/Misc/gnome-shell-screenshot-DMCH2Z.png)
-
-  看来是一个base64加密的，解密后拿到flag.
-
-11. 多种方法解决
-
-  下载来是一个KEY.exe文件，使用binwalk无法分析。直接cat看看情况，发现是一个图片。
-
-  ![多种方法解决查看文件内容](../imgs/Bugku/Misc/gnome-shell-screenshot-IK821Z.png)
-
-  使用网上现成的base64转图片拿到二维码，扫描后得到flag。
-
-12. 闪得好快
-
-  打开题目是一个不停变换的gif二维码图片。
-
-  ![闪得好快图片内容](../imgs/Bugku/Misc/masterGO.gif)
-
-  需要分析二维码图片就需要下载一个gif分析工具，叫做stegsolve。因为这个工具kali里面没有，所以先执行以下操作进行安装。
-
-  ```
-  wget http://www.caesum.com/handbook/Stegsolve.jar -O stegsolve.jar
-
-  chmod +x stegsolve.jar
-  ```
-
-  安装好以后可以看到执行命令的目录下面已经有stegsolve.jar文件了。这时候使用命令打开文件
-  `java -jar stegsolve.jar`
-
-  软件打开后首先加载文件，然后使用Analyse->frame Browser就可以一帧一帧的二维码图了。把这18张图片的内容都扫描出来，就是答案了。
-
-13. 白哥的鸽子:
-
-  下载来一张图片。binwalk看了一下没什么特别的，用xxd看看16进制，发现末尾有古怪。
-
-  ![白哥的鸽子_图片内容](../imgs/Bugku/Misc/gnome-shell-screenshot-XQL81Z.png)
-
-  JPEG图片开头是ffd8，末尾应该是ffd9.后面多出来一些内容，先把16进制转换成字符串
-
-  ![白哥的鸽子_解码](../imgs/Bugku/Misc/gnome-shell-screenshot-W0M11Z.png)
-
-  按经验判断是一个栅栏密码，上网解码得到flag
-
-  ![白哥的鸽子_栅栏密码解密](../imgs/Bugku/Misc/gnome-shell-screenshot-RSTD2Z.png)
-
-14. linux
-
-  这个题目有几种解法。
-
-  解法一：
-
-  下载到文件后，用binwalk分析一波，看到好像是由几个文件组成的。于是使用binwalk -e的命令将文件都分解出来，得到一个flag文本。里面就是flag
-
-  解法二:
-
-  下载到文件后使用`strings flag | grep flag`找其中的flag内容。
-
-15. 隐写3
-
-  下载来是一个图片。打开后提示CRC校验码出错，考虑是宽高被改动过了无法显示。这边有个小提示，windows下会忽略CRC校验码错误，显示图片。但是linux下会因为CRC校验码出错无法显示。
-
-  使用系统自带工具hexeditor打开，17~20字节00 00 02 A7是宽，21~24字节00 00 01 00是高，30~33字节6D 7C 71 35是CRC校验码。
-
-  ![隐写3图片的16进制](../imgs/Bugku/Misc/gnome-shell-screenshot-D30H2Z.png)
-
-  随便修改了一下高度，图片还是无法显示(如果是windows系统里面，修改就会正常显示了)。于是在网上找了现成的计算代码，运行后会重新生成一个正常的图片。
-  ```
-import zlib
-import struct
-#读文件
-file = 'dabai.png'
-fr = open(file,'rb').read()
-data = bytearray(fr[12:29])
-crc32key =  0x6D7C7135 #需要自己填写30～33的16进制校验码
-#crc32key = eval(str(fr[29:33]).replace('\\x','').replace("b'",'0x').replace("'",''))
-n = 4095 #理论上0xffffffff,但考虑到屏幕实际，0x0fff就差不多了
-for w in range(n):#高和宽一起爆破
-    width = bytearray(struct.pack('>i', w))#q为8字节，i为4字节，h为2字节
-    for h in range(n):
-        height = bytearray(struct.pack('>i', h))
-        for x in range(4):
-            data[x+4] = width[x]
-            data[x+8] = height[x]
-            #print(data)
-        crc32result = zlib.crc32(data)
-        if crc32result == crc32key:
-            print(width,height)
-            #写文件
-            newpic = bytearray(fr)
-            for x in range(4):
-                newpic[x+16] = width[x]
-                newpic[x+20] = height[x]
-            fw = open(file+'.png','wb')#保存副本
-            fw.write(newpic)
-            fw.close
-  ```
-  ![隐写3的FLAG](../imgs/Bugku/Misc/gnome-shell-screenshot-22201Z.png)
-
-
-## 0x02 WEB
+# Bugku CTF WriteUp WEB
 
 1. web2
 
@@ -327,31 +98,31 @@ for w in range(n):#高和宽一起爆破
 13. 网站被黑
 
   打开页面发现一个炫酷页面
-  ![网站被黑webshell页面](../imgs/Bugku/Misc/gnome-shell-screenshot-IX8R3Z.png)
+  ![网站被黑webshell页面](../../imgs/Bugku/Misc/gnome-shell-screenshot-IX8R3Z.png)
   说明这个网站已经被黑，页面提示webshell，考虑到存在大马页面，使用kali自带的dirb工具扫描其他页面(这个工具其实蛮好用的)。发现shell页面
-  ![网站被黑shell页面](../imgs/Bugku/Web/gnome-shell-screenshot-Q6KP3Z.png)
+  ![网站被黑shell页面](../../imgs/Bugku/Web/gnome-shell-screenshot-Q6KP3Z.png)
   看来是需要爆破了，使用burpsuite一波弱口令破解拿到flag。
 
 14. 管理员系统
 
   首先有一个登陆框，尝试登陆时提示IP受限。F12查看源代码还得到一个BASE64字符串，解码为test123.
-  ![管理员系统](../imgs/Bugku/Web/gnome-shell-screenshot-GRLJ3Z.png)
+  ![管理员系统](../../imgs/Bugku/Web/gnome-shell-screenshot-GRLJ3Z.png)
 
   获得以上信息后首先解决IP受限问题，修改X-Forwarded-For为127.0.0.1，后尝试以test123,test123登陆，提示密码错误。于是把用户名修改为admin，密码为test123成功登陆。
 
 15. Web4
 
   打开页面提示看源代码，发现两个js变量p1,p2.
-  ![Web4](../imgs/Bugku/Web/gnome-shell-screenshot-KKWC3Z.png)
+  ![Web4](../../imgs/Bugku/Web/gnome-shell-screenshot-KKWC3Z.png)
   利用浏览器的Console将两个变量使用unescape函数解析出来，组合成一组字符串。填入框中得到flag。
 
 16. flag在index里
 
   根据查看首页、show.php、以及首页上的超链接，考虑到是一个文件包含漏洞。
-  ![flag在index里1](../imgs/Bugku/Web/gnome-shell-screenshot-LZIB3Z.png)
+  ![flag在index里1](../../imgs/Bugku/Web/gnome-shell-screenshot-LZIB3Z.png)
 
   因此按照套路构造协议url为xxx:/post/?file=php://filter/read=convert.base64-encode/resource=./index.php，拿到index.php的base64码
-  ![flag在index里2](../imgs/Bugku/Web/gnome-shell-screenshot-2XJS3Z.png)
+  ![flag在index里2](../../imgs/Bugku/Web/gnome-shell-screenshot-2XJS3Z.png)
 
   解码以后得到flag.
 
@@ -397,9 +168,9 @@ for w in range(n):#高和宽一起爆破
 21. 秋名山老司机
 
   一道似曾相似的题目。页面中给出了一个超长计算式，需要迅速计算并把结果post到页面中。并且页面有中英文两种版本。
-  ![秋名山老司机](../imgs/Bugku/Web/gnome-shell-screenshot-3VIB3Z.png)
+  ![秋名山老司机](../../imgs/Bugku/Web/gnome-shell-screenshot-3VIB3Z.png)
 
-  ![秋名山老司机](../imgs/Bugku/Web/gnome-shell-screenshot-7CHG3Z.png)
+  ![秋名山老司机](../../imgs/Bugku/Web/gnome-shell-screenshot-7CHG3Z.png)
 
   仔细观察，知道算式是放在一个div里面。于是写出脚本拿到flag：
   ```
@@ -422,11 +193,11 @@ for w in range(n):#高和宽一起爆破
 
   从原页面头中得到一个flag参数，里面都是base64码
 
-  ![Web6](../imgs/Bugku/Web/gnome-shell-screenshot-WELS3Z.png)
+  ![Web6](../../imgs/Bugku/Web/gnome-shell-screenshot-WELS3Z.png)
 
   解码以后又拿到一个base64码
 
-  ![Web6](../imgs/Bugku/Web/gnome-shell-screenshot-ZMQN3Z.png)
+  ![Web6](../../imgs/Bugku/Web/gnome-shell-screenshot-ZMQN3Z.png)
   再解码是一串数字。因为base64码不是不变的，于是写脚本提交数字，拿到flag.
   ```
   import requests
@@ -468,23 +239,23 @@ for w in range(n):#高和宽一起爆破
   ?>
   ```
   看来是需要在COOKIE中加入margin。并且filename的文件名改成keys.php的base64码
-  ![cookies欺骗](../imgs/Bugku/Web/gnome-shell-screenshot-3JS82Z.png)
+  ![cookies欺骗](../../imgs/Bugku/Web/gnome-shell-screenshot-3JS82Z.png)
 
 24. never give up
 
   打开页面没什么内容，F12查看源代码得到一个页面地址1p.html
-  ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-90RC3Z.png)  
+  ![never_give_up](../../imgs/Bugku/Web/gnome-shell-screenshot-90RC3Z.png)  
   但是输入地址后浏览器就自动跳转了，使用burpsuite查看，得到1p.html中的一大段base64码.
-  ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-SJJQ3Z.png)
+  ![never_give_up](../../imgs/Bugku/Web/gnome-shell-screenshot-SJJQ3Z.png)
 
   解密后就看到有点复杂的逻辑，但是不用管它。直接发现有个f4l2a3g.txt文件，访问后拿到flag
-  ![never_give_up](../imgs/Bugku/Web/gnome-shell-screenshot-ZKZA3Z.png)
+  ![never_give_up](../../imgs/Bugku/Web/gnome-shell-screenshot-ZKZA3Z.png)
 
 25. welcome to bugkuctf
 
   有意思的一道题，介绍了CTF题目中常用两个的PHP伪协议(为什么总是php??)。
 
-  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-XMXG4Z.png)
+  ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-XMXG4Z.png)
 
   可以看到页面中给了这样的提示：
   ```
@@ -507,13 +278,13 @@ for w in range(n):#高和宽一起爆破
 
   其实file_get_contents不仅仅可以读取文件，还可以通过一个伪协议file_get_contents(php://input)读取post里面的内容。
 
-  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-Q0PY3Z.png)
+  ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-Q0PY3Z.png)
 
   可以看到返回内容已经做出改变，if判断里面的条件我们已经满足(虽然这里还有一个小问题，就是现在页面返回的内容是hello friend，和注释中给我们的you are not admin不一致。说明index.php文件还有内容是注释里面没有说明的)。现在来看第二个要求，就是`include($file)`这句，他是要求包含hint.php文件。但如果只是构造file=hint.php不会直接给出hint.php源文件(为什么？),需要利用php://filter伪协议将hint.php文件内容转化为base64(也是CTF题目中最常用的方法)。
 
   于是构造`file=php://filter/read=convert.base64-encode/resource=hint.php`
 
-  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-43O33Z.png)
+  ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-43O33Z.png)
 
   解码后：
   ```
@@ -535,7 +306,7 @@ for w in range(n):#高和宽一起爆破
   还有点复杂的感觉。以上代码告知了这么一个情况:有个flag.php文件，里面有一个Flag类，`__tostring`方法说明当打印Flag实例的时候，会输出Flag实例中的$file变量值。
 
   先尝试直接打印flag内容，发现不行
-  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-33EA4Z.png)
+  ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-33EA4Z.png)
 
   还记得之前说过index.php文件还有内容我们没有发现吗，构造`file=php://filter/read=convert.base64-encode/resource=index.php`查看一下index.php文件内容。
   ```
@@ -562,18 +333,18 @@ for w in range(n):#高和宽一起爆破
   很明显，第二个if函数说明了file参数不能包含flag字符。结合hint.php文件中的内容说明一下，$password应该是Flag实例序列化后的字符串，因此反序列化$password(就是将已经被序列化为$password字符串的对象复原)后，echo $password就会调用Flag类中的__toString方法，而__toString方法是打印类中的file属性值。目前就是需要打印出flag.php页面，所以我们把实例的file值等于'flag.php'
 
   第一步，构造Flag类，Flag类的file属性等于flag.php，并将其实例化
-  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-J0J73Z.png)
+  ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-J0J73Z.png)
 
   第二步，在index.php页面构造url为`?txt=php://input&file=hint.php&password=O:4:"Flag":1:{s:4:"file";s:8:"flag.php";}`
 
-  ![welcome_to_bugkuctf](../imgs/Bugku/Web/gnome-shell-screenshot-TAID4Z.png)
+  ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-TAID4Z.png)
 
   需要注意的是此时不需要对hint.php文件进行base64编码。因为编码的目的是为了展示页面源代码，现在的目的不用展示，是把Flag类的定义进行引用。
 
 26. 字符？正则？
 
   又到了一年一度的“为什么我怎么总是学不会正则表达式？？为什么一学就忘”的无能狂怒时间。
-  ![正则](../imgs/Bugku/Web/gnome-shell-screenshot-KUJ33Z.png)
+  ![正则](../../imgs/Bugku/Web/gnome-shell-screenshot-KUJ33Z.png)
 
   以前做过这道题，但是好像做错了。
 
@@ -588,7 +359,7 @@ for w in range(n):#高和宽一起爆破
 27. 前女友
 
   根据源代码的提示看到code.txt内容。
-  ![正则](../imgs/Bugku/Web/gnome-shell-screenshot-SE6C4Z.png)
+  ![正则](../../imgs/Bugku/Web/gnome-shell-screenshot-SE6C4Z.png)
 
   这个一看就知道是利用md5函数无法计算数组以及strcmp(参数1,参数2)(是比较两个参数字符串长度)中，无法比较数组的特点来构造。构造一下url参数拿到flag.
 
@@ -597,10 +368,10 @@ for w in range(n):#高和宽一起爆破
 28. login1
 
   页面提示`SQL约束攻击`，点进去看到是一个普通的登陆页面和注册页面。
-  ![login1](../imgs/Bugku/Web/gnome-shell-screenshot-9BVJ4Z.png)
+  ![login1](../../imgs/Bugku/Web/gnome-shell-screenshot-9BVJ4Z.png)
 
   尝试注册admin时候提示已经注册过.
-  ![login1](../imgs/Bugku/Web/gnome-shell-screenshot-XMFN4Z.png)
+  ![login1](../../imgs/Bugku/Web/gnome-shell-screenshot-XMFN4Z.png)
 
   根据提示找了一下SQL约束攻击的大概意思。比如当前的条件是：我创建了一个表，表里面的username字段格式是varchar(25)，而且当前录入了`admin`进去。这时候如果我再注册admin，就会提示我admin已存在。但是如果我注册了一个用户`admin   (20个空格)a`那么数据库在判断的时候首先会认为`admin   (20个空格)a`和`admin`不是一样的内容，然后把`admin   (20个空格)a`前面25个字符截断后存入。这时候就能用新注册的那个密码覆盖掉以前的密码。就完成了所谓的`SQL约束攻击`。最终拿到flag.
 
@@ -635,53 +406,53 @@ for w in range(n):#高和宽一起爆破
 
 32. 各种绕过
 
-  ![各种绕过](../imgs/Bugku/Web/gnome-shell-screenshot-CPNN4Z.png)
+  ![各种绕过](../../imgs/Bugku/Web/gnome-shell-screenshot-CPNN4Z.png)
 
   考验sha1函数数组漏洞以及post\get方式提交，没什么难度。但是有个问题，我使用burpsuite怎么提交都出不了flag，后来写了Python小脚本才出现的。看来有必要下载一个hackbar之类的工具。
 
 33. web8
 
-  ![web8](../imgs/Bugku/Web/gnome-shell-screenshot-KIVR4Z.png)
+  ![web8](../../imgs/Bugku/Web/gnome-shell-screenshot-KIVR4Z.png)
 
   这个题目有两个解法。
 
   第一个解法：根据题目提示有txt文件，扫描目录知道可以访问flag.txt。内容是flags。既然有文件，那么直接构造`ac=flags`,然后利用file_get_contents函数构造`fn=flag.txt`就能拿到flag.
 
-  ![web8](../imgs/Bugku/Web/gnome-shell-screenshot-FVCV4Z.png)
+  ![web8](../../imgs/Bugku/Web/gnome-shell-screenshot-FVCV4Z.png)
 
   第二个解法：利用伪协议。原理是`file_get_contents()`函数不仅仅可以读取文件内容，还可以读取url以及伪协议内容。
   那么直接利用php://input这个伪协议获取post中传递的内容的特性。具体构造见下图：
 
-  ![web8](../imgs/Bugku/Web/gnome-shell-screenshot-M5J24Z.png)
+  ![web8](../../imgs/Bugku/Web/gnome-shell-screenshot-M5J24Z.png)
 
   奇怪的是，这个方法我用hackbar根本不出结果，用burp就有结果，晕了。
 
 34. 细心
 
-  ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-ONFN4Z.png)
+  ![细心](../../imgs/Bugku/Web/gnome-shell-screenshot-ONFN4Z.png)
 
   细心看了一下应该是一个假的报错页面。于是用dirb扫描一下后台，发现另外一个页面
 
-  ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-Q76Z4Z.png)
+  ![细心](../../imgs/Bugku/Web/gnome-shell-screenshot-Q76Z4Z.png)
 
   看到下面有对x进行比较，几次尝试以后将`x=admin`，拿到flag(这个题真没什么意思)
 
-  ![细心](../imgs/Bugku/Web/gnome-shell-screenshot-38LP4Z.png)
+  ![细心](../../imgs/Bugku/Web/gnome-shell-screenshot-38LP4Z.png)
 
 35. 求getshell
 
   题目如下:
-  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-LSOM4Z.png)
+  ![求getshell](../../imgs/Bugku/Web/gnome-shell-screenshot-LSOM4Z.png)
 
   看出来是一个上传题。
 
   我们先尝试上传一个php一句话文件。
 
-  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-QPPR4Z.png)
+  ![求getshell](../../imgs/Bugku/Web/gnome-shell-screenshot-QPPR4Z.png)
 
   显示无法通过。那么修改一下Content-type内容，将其修改为图片格式。
 
-  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-SVG34Z.png)
+  ![求getshell](../../imgs/Bugku/Web/gnome-shell-screenshot-SVG34Z.png)
 
   还是不行。最后看了其他人的WriteUp，是需要修改几个地方：
 
@@ -689,7 +460,7 @@ for w in range(n):#高和宽一起爆破
   2. 第二个是文件后缀名,发现php5可以通过。
   3. 第三个是上传文件后判断的Content-Type内容，这个内容会随着你上传文件的后缀判断。
 
-  ![求getshell](../imgs/Bugku/Web/gnome-shell-screenshot-4DXS4Z.png)
+  ![求getshell](../../imgs/Bugku/Web/gnome-shell-screenshot-4DXS4Z.png)
 
   也不知道哪个神仙做出来的。然后我在网上收集了一些上传方面的资料：
 
@@ -708,7 +479,7 @@ for w in range(n):#高和宽一起爆破
 
 36. INSERT INTO注入
 
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-B8C24Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-B8C24Z.png)
 
   不论是题目的提示还是自己对代码的审计，应该看得出来以下几个规则:
 
@@ -718,32 +489,32 @@ for w in range(n):#高和宽一起爆破
   4. SQL语句是INSERT语句，插入就是插入没有对错之分，因此在对待这个盲注时无法使用布尔型盲注。
 
   根据以上条件，判断出应该是要进行时间盲注。首要考虑sleep函数往哪放，因为这个语句是一个INSERT语句，所以我先尝试将insert语句闭合，插入`1'; select sleep(5);#`。这时候语句就变成了`insert into table_name(column_name) value('1');(select sleep(5));#')`。但可能是通过PHP执行的原因，无法执行两条连续的语句。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6NEJ4Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-6NEJ4Z.png)
 
   我在Mysql中可以执行两条。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-LL1Y4Z.png)  
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-LL1Y4Z.png)  
 
   所以只能在INSERT语句下想办法，先构造`1' and sleep(5) and '1'='1`。执行后果然是延时了。
 
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-IMWR4Z.png)  
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-IMWR4Z.png)  
   这时候后台语句就变成了`insert into table_name(column_name) value('1' and sleep(5) and '1'='1')`。在MySQL下看，这段内容是插入了0.因为`SELECT SLEEP(5)`的查询结果就是0
 
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6Q7W4Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-6Q7W4Z.png)
 
   还要注意的是，第一个字不能是英文。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-XSIR4Z.png)  
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-XSIR4Z.png)  
 
   现在已经构造好大致的payload框架，然后是按照需要在刚才的sleep()函数附近修改内容。常规操作是使用if(条件判断,内容为真时延迟sleep(n),内容为假时)，但由于题目条件第二条对逗号进行了过滤不能直接使用if函数，那么换个姿势使用`CASE WHEN 条件判断 THEN 延迟SLEEP(5) ELSE 1 END`
 
   1. 第一步是试探数据库的字符数，构造语句`1' and (SELECT CASE WHEN  length(database())=1 THEN SLEEP(5) ELSE 1 END) AND '1'='1`在burp里面跑一下(burp的设置见https://www.jianshu.com/p/5d34b3722128)
   其中length(database())的数值设置为变量。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-PD9K4Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-PD9K4Z.png)
 
   然后把页面timeout时间设置低一点，一般要低于我们sleep的时间。这样设置的原因是当出现可能触发sleep的时候结果会提示timeout。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6Q6W4Z.png)  
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-6Q6W4Z.png)  
 
   走两步：
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-4GT34Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-4GT34Z.png)
 
   2. 第二步是按照顺序一个个猜测字符内容。`1' and (SELECT CASE WHEN  substr(database() from 1 for 1)='a' THEN SLEEP(5) ELSE 1 END) AND '1'='1`
 
@@ -751,17 +522,17 @@ for w in range(n):#高和宽一起爆破
   让我们看看这样两个变量是怎么通过burp操作的。
 
   因为有两个变量，所以设置攻击方式为cluster bomb
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-KX4Q4Z.png)  
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-KX4Q4Z.png)  
 
   设置好两个变量的内容，第一个变量是从1到5。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-UQOM4Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-UQOM4Z.png)
 
   第二个变量是一些字符串集合，实际上截图里面的还不够完整，应该加上大写字母以及符号。
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-TJHJ4Z.png)  
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-TJHJ4Z.png)  
 
   设置好以后开始攻击，最后查看timeout的反馈页面拿到结果：web15
 
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-O5R34Z.png)    
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-O5R34Z.png)    
 
   虽然达成目的了，但是这种方法的效率是非常低的，因为如果在对第一个字符的第一次测试中就知道结果是a,那么实际上是不用继续测试'bcdefg...'的。但是机器不知道我们拿到需要的结果还会继续测试。因此需要找找其他方法来完成这个猜测的过程。
 
@@ -771,7 +542,7 @@ for w in range(n):#高和宽一起爆破
 
   因为我们在语句中用了`group_concat(table_name)`,所以在不知道有多少个表的情况下，所有表名称加上group_concat函数自带的逗号共有14个字符。
 
-  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-UBPP4Z.png)
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-UBPP4Z.png)
 
   4. 一个个猜测表名称的字符内容。
 
