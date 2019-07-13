@@ -2,7 +2,7 @@
 
 1. 签到题
 
-    没啥好说的，直接关注公众号。
+  没啥好说的，直接关注公众号。
 
 2. 这是一张单纯的图片
 
@@ -191,28 +191,28 @@
 
   随便修改了一下高度，图片还是无法显示(如果是windows系统里面，修改就会正常显示了)。于是在网上找了现成的计算代码，运行后会重新生成一个正常的图片。
   ```
-import zlib
-import struct
-#读文件
-file = 'dabai.png'
-fr = open(file,'rb').read()
-data = bytearray(fr[12:29])
-crc32key =  0x6D7C7135 #需要自己填写30～33的16进制校验码
-#crc32key = eval(str(fr[29:33]).replace('\\x','').replace("b'",'0x').replace("'",''))
-n = 4095 #理论上0xffffffff,但考虑到屏幕实际，0x0fff就差不多了
-for w in range(n):#高和宽一起爆破
-    width = bytearray(struct.pack('>i', w))#q为8字节，i为4字节，h为2字节
-    for h in range(n):
-        height = bytearray(struct.pack('>i', h))
-        for x in range(4):
-            data[x+4] = width[x]
-            data[x+8] = height[x]
-            #print(data)
-        crc32result = zlib.crc32(data)
-        if crc32result == crc32key:
-            print(width,height)
-            #写文件
-            newpic = bytearray(fr)
+  import zlib
+  import struct
+  #读文件
+  file = 'dabai.png'
+  fr = open(file,'rb').read()
+  data = bytearray(fr[12:29])
+  crc32key =  0x6D7C7135 #需要自己填写30～33的16进制校验码
+  #crc32key = eval(str(fr[29:33]).replace('\\x','').replace("b'",'0x').replace("'",''))
+  n = 4095 #理论上0xffffffff,但考虑到屏幕实际，0x0fff就差不多了
+  for w in range(n):#高和宽一起爆破
+      width = bytearray(struct.pack('>i', w))#q为8字节，i为4字节，h为2字节
+      for h in range(n):
+          height = bytearray(struct.pack('>i', h))
+          for x in range(4):
+              data[x+4] = width[x]
+              data[x+8] = height[x]
+              #print(data)
+              crc32result = zlib.crc32(data)
+              if crc32result == crc32key:
+                print(width,height)
+                #写文件
+                newpic = bytearray(fr)
             for x in range(4):
                 newpic[x+16] = width[x]
                 newpic[x+20] = height[x]
