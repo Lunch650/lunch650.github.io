@@ -893,3 +893,11 @@ for w in range(n):#高和宽一起爆破
   3. 使用sqlmap工具就不详细谈，通过数据库我们又看到了还有一个页面Once_More.php，继续注入。
 
   ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-WVJF5Z.png)
+
+  用自己准备得payload测试一波，发现关键点。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-58934Z.png)
+
+  可以看到，第5和第6在同一个payload格式下，因为and后面的对错不同，页面返回的内容大小也不同。明显是一个报错注入点。sqlmap跑的时候，注意添加--user-agent=random就可以绕过所谓的waf。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-R1NA5Z.png)  
