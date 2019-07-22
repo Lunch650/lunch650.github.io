@@ -834,3 +834,62 @@ for w in range(n):#高和宽一起爆破
     还有就是我拿到了AdMiNhEhEd账户的密码，登陆后出现一个这页面，也不知道干嘛的。感觉挺中二的，我也就没管它。
 
     ![这是一个神奇的登陆框](../imgs/Bugku/Web/gnome-shell-screenshot-4R1R4Z.png)
+
+38. 多次
+
+  这个题目的难度很大,但是弄懂了也能学到很多东西.
+
+  打开页面看到地址后面有`id=1`,估计是SQL注入。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-VE454Z.png)
+
+  用我准备得一个payload去扫一圈，感觉怪怪的没有发现页面的闭合规律。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-UT7C5Z.png)
+
+  1. 首先判断是不是关键词被屏蔽了。正好学到很关键的一招**异或注入**，拿这个题目举例。`id=1`的时候页面显示正常，我们就可以在后面添加一个异或判断`'^(0)^'`(真是欢乐)。现在要进行观察，当异或判断里面为真`'^(1)^'`以及为假`'^(0)^'`的时候，页面是什么反应。如果是判断里面为真`'^(1)^'`，页面也显示正常，那么我们就可以把里面的内容更换成`'^('and')^'`，当页面显示正常，就说明`and`这个关键词没有被屏蔽。这个做法类似于报错注入。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-SYZL5Z.png)
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-MR494Z.png)
+
+
+  首先进行测试，发现`select`、`and`这些关键词被屏蔽了，大小写也无法绕过，于是试一下double形。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-WSUB5Z.png)
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-OLEL5Z.png)  
+
+  用其他关键词跑一下，找出其他被屏蔽的关键词`and`,`or`,`select`,`union`。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-DDRF5Z.png)
+
+  2. 然后因为使用burp爆破的效率实在是太低了，我们使用sqlmap跑，因为有关键词过滤，所以必须选定tamper文件来绕过。查询资料发现一个叫做nonrecursivereplacement.py的tamper可以实现我们需要的double型的payload，但是这个文件不知道什么原因目前的新版本已经不提供了，我们在github上面找到以前的文件复制到`/usr/share/sqlmap/tamper/`文件夹下面，但是这个时候还不能直接使用，需要自行进行修改：
+
+  ```
+  keywords = ("UNION", "SELECT", "INSERT", "UPDATE", "AND")
+  #按照我们发现的过滤的关键词进行增删，如果不删除不需要的关键词，就会出现问题。
+  #譬如页面并没有过滤FROM,而我们把FROM添加进这个列表中后，
+  #payload中的FROM就会变成FRFROMOM,语句就无法正常执行。
+  retVal = payload
+
+  warnMsg = "currently only couple of keywords are being processed %s. " % str(keywords)
+  warnMsg += "You can set it manually according to your needs"
+  singleTimeWarnMessage(warnMsg)
+
+  if payload:
+      for keyword in keywords:
+          _ = random.randint(1, len(keyword) - 1)
+          retVal = re.sub(r"(?i)\b%s\b" % keyword, "%s%s%s" % (keyword[:_], keyword, keyword[_:]), retVal)
+      retVal = retVal.replace("OR","OORR")
+      #这一句比较关键，如果OR添加上面keywords中，他只会实现全匹配，那么
+      #information_schema中存在or会被过滤，这一句放在这就可以将其变成
+      #infoorrmation_schema绕过。
+  return retVal
+
+  ```
+  通过对tamper文件的修改，总算可以利用sqlmap工具了，之前没有修改tamper文件的时候，是通过-V 3来分析payload语句需要怎么修改。
+
+  3. 使用sqlmap工具就不详细谈，通过数据库我们又看到了还有一个页面Once_More.php，继续注入。
+
+  ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-WVJF5Z.png)
