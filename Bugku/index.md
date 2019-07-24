@@ -901,3 +901,57 @@ for w in range(n):#高和宽一起爆破
   可以看到，第5和第6在同一个payload格式下，因为and后面的对错不同，页面返回的内容大小也不同。明显是一个报错注入点。sqlmap跑的时候，注意添加--user-agent=random就可以绕过所谓的waf。
 
   ![多次](../imgs/Bugku/Web/gnome-shell-screenshot-R1NA5Z.png)  
+
+39. flag.php
+
+  打开页面有个登陆框，
+  ![flag.php](../imgs/Bugku/Web/gnome-shell-screenshot-YYCQ5Z.png)
+
+  尝试了一下发现这个登陆框没什么作用，action后面没有跟页面地址。
+
+  题目中有提示hint，修改URL为`/flagphp/?hint`,出现内容。
+  ```
+  <?php
+  error_reporting(0);
+  include_once("flag.php");
+  $cookie = $_COOKIE['ISecer'];
+  if(isset($_GET['hint'])){
+    show_source(__FILE__);
+  }
+  elseif (unserialize($cookie) === "$KEY")
+  {   
+    echo "$flag";
+  }
+  else {
+  ?>
+    <html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="admin.css" type="text/css">
+    </head>
+    <body>
+    <br>
+    <div class="container" align="center">
+    <form method="POST" action="#">
+      <p><input name="user" type="text" placeholder="Username"></p>
+      <p><input name="password" type="password" placeholder="Password"></p>
+      <p><input value="Login" type="button"/></p>
+    </form>
+    </div>
+    </body>
+    </html>
+    <?php
+  }
+  $KEY='ISecer:www.isecer.com';
+  ?>
+  ```
+  其中最关键的一步是`elseif (unserialize($cookie) === "$KEY")`。审计代码发现实际上`$KEY`是没有定义的，在PHP中，没有定义就使用的变量值是空字符串(世界上最伟大的PHP语言)。所以我们只需要将空字符串序列化后传递给Cookie，然后`unserialize($cookie)`就可以得到空字符串了。
+  ```
+  <?php
+    $a="";
+    print(serialize($a));
+  ?>
+  ```
+  得到的值是`s:0:"";`,传入Cookie为:
+  `Cookie: s:0:"";`(网上的writeup说需要将分号用url编码才行。？？？？.jpg，我不明白为啥。随便抓个包就知道实际上http头是允许出现分号的。)，最后拿到flag。
