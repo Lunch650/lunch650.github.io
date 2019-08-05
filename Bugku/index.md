@@ -954,4 +954,15 @@ for w in range(n):#高和宽一起爆破
   ?>
   ```
   得到的值是`s:0:"";`,传入Cookie为:
-  `Cookie: s:0:"";`(网上的writeup说需要将分号用url编码才行。？？？？.jpg，我不明白为啥。随便抓个包就知道实际上http头是允许出现分号的。)，最后拿到flag。
+  `Cookie: s:0:"";`(网上的writeup说需要将分号用url编码才行，实际上是不需要的。随便抓个包就知道实际上http头是允许出现分号的。)，最后拿到flag。
+
+40. sql注入2
+
+  打开页面是一个登陆框
+  ![flag.php](../imgs/Bugku/Web/gnome-shell-screenshot-Y6JB6Z.png)
+
+  随便弱口令输入则提示`password error`，尝试使用`admin' or '1'='1`这类的万能密码登录则页面返回了`illegal character`提示有非法字符。于是我用sqlmap软件data文件夹中的keywords.txt文件中的关键字进行了遍历，发现`and`、`or`、`like`之类的关键字都被过滤掉了，大小写、double型、`/**/`之类的抗过滤也没有成功。过滤的这些关键词里面最关键的还是`or`，因为`information_schema`这个表就无法查询了。
+
+  题目中有提示`!,!=,=,+,-,^,%`这些符号这些没有被过滤。再尝试异或注入，首先构造`admin'^(0)^'`，页面返回`password error`，但是当我们构造`admin'^(1)^'`时，页面返回`username error`.ok，可以使用异或注入。
+
+  首先可以判断出数据库名称长度`admin'^(length(database())=3)^'`,然后根据盲注的原理，要一个个判断出数据库字符,一般说来是使用`substr/mid/left`函数构造`substr(database(),1,1)='a'`，`mid(database(),1,1)='a'`，`left(database(),1)='a'`之类的语句来猜测内容。现在逗号`,`是被过滤的，尝试`substr(database() from 1 for 1)`,但是`for`也被过滤了。

@@ -98,9 +98,9 @@
 13. 网站被黑
 
   打开页面发现一个炫酷页面
-  ![网站被黑webshell页面](../../imgs/Bugku/Misc/gnome-shell-screenshot-IX8R3Z.png)
   说明这个网站已经被黑，页面提示webshell，考虑到存在大马页面，使用kali自带的dirb工具扫描其他页面(这个工具其实蛮好用的)。发现shell页面
   ![网站被黑shell页面](../../imgs/Bugku/Web/gnome-shell-screenshot-Q6KP3Z.png)
+
   看来是需要爆破了，使用burpsuite一波弱口令破解拿到flag。
 
 14. 管理员系统
@@ -198,6 +198,7 @@
   解码以后又拿到一个base64码
 
   ![Web6](../../imgs/Bugku/Web/gnome-shell-screenshot-ZMQN3Z.png)
+
   再解码是一串数字。因为base64码不是不变的，于是写脚本提交数字，拿到flag.
   ```
   import requests
@@ -351,10 +352,10 @@
   一个个来吧。
 
   1. 首先看到整个结构一头一尾是被`/格式/i`包裹的，这个i就代表了中间格式内容不区分大小写。
-  2. key.* 前面key就是要求构造时候要以key开头，句号`.`代表除了换行符以外任意1个字符的匹配，星号`*`代表匹配0次或多次任意字符。所以构造`?id=keyaakey`
-  3. .{4,7}key 前面的部分`.{4,7}`代表对`.`重复匹配4~7次。目前是`?id=keyaakeybbbbkey`
-  4. :\\/.\\/(.* key) `\/`部分是指匹配`/`，`\`是用于转义。所以当前构造`?id=keyaakeybbbbkey:/c/dkey`
-  5. [a-z][[:punct:]] 第一个是任意a-z英文字母，后面框框是指任意符号。最后构造的结果是：`?id=keyaakeybbbbkey:/c/dkeye-`，得到flag
+  2. `key.*key` 前面key就是要求构造时候要以key开头，句号`.`代表除了换行符以外任意1个字符的匹配，星号`*`代表匹配0次或多次任意字符。所以构造`?id=keyaakey`
+  3. `.{4,7}key` 前面的部分`.{4,7}`代表对`.`重复匹配4~7次。目前是`?id=keyaakeybbbbkey`
+  4. `:\/.\/(.* key)` 前面的`\/`部分是指匹配`/`，`\`是用于转义。所以当前构造`?id=keyaakeybbbbkey:/c/dkey`
+  5. `[a-z][[:punct:]]` 第一个是任意a-z英文字母，后面框框是指任意符号。最后构造的结果是：`?id=keyaakeybbbbkey:/c/dkeye-`，得到flag
 
 27. 前女友
 
@@ -442,6 +443,7 @@
 35. 求getshell
 
   题目如下:
+  
   ![求getshell](../../imgs/Bugku/Web/gnome-shell-screenshot-LSOM4Z.png)
 
   看出来是一个上传题。
@@ -611,3 +613,80 @@
   ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-DE2D5Z.png)
 
   然后这个页面目录下有一个flag文件，查看后拿到flag，就不赘述。
+
+39. flag.php
+
+  打开页面有个登陆框，
+  ![flag.php](../imgs/Bugku/Web/gnome-shell-screenshot-YYCQ5Z.png)
+
+  尝试了一下发现这个登陆框没什么作用，action后面没有跟页面地址。
+
+  题目中有提示hint，修改URL为`/flagphp/?hint`,出现内容。
+  ```
+  <?php
+  error_reporting(0);
+  include_once("flag.php");
+  $cookie = $_COOKIE['ISecer'];
+  if(isset($_GET['hint'])){
+    show_source(__FILE__);
+  }
+  elseif (unserialize($cookie) === "$KEY")
+  {   
+    echo "$flag";
+  }
+  else {
+  ?>
+    <html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="admin.css" type="text/css">
+    </head>
+    <body>
+    <br>
+    <div class="container" align="center">
+    <form method="POST" action="#">
+      <p><input name="user" type="text" placeholder="Username"></p>
+      <p><input name="password" type="password" placeholder="Password"></p>
+      <p><input value="Login" type="button"/></p>
+    </form>
+    </div>
+    </body>
+    </html>
+    <?php
+  }
+  $KEY='ISecer:www.isecer.com';
+  ?>
+  ```
+  其中最关键的一步是`elseif (unserialize($cookie) === "$KEY")`。审计代码发现实际上`$KEY`是没有定义的，在PHP中，没有定义就使用的变量值是空字符串(世界上最伟大的PHP语言)。所以我们只需要将空字符串序列化后传递给Cookie，然后`unserialize($cookie)`就可以得到空字符串了。
+  ```
+  <?php
+    $a="";
+    print(serialize($a));
+  ?>
+  ```
+  得到的值是`s:0:"";`,传入Cookie为:
+  `Cookie: s:0:"";`(网上的writeup说需要将分号用url编码才行，实际上是不需要的。随便抓个包就知道实际上http头是允许出现分号的。)，最后拿到flag。
+
+40. sql注入2
+
+  打开页面是一个登陆框
+  ![sql注入2](../../imgs/Bugku/Web/gnome-shell-screenshot-Y6JB6Z.png)
+
+  随便弱口令输入则提示`password error`，尝试使用`admin' or '1'='1`这类的万能密码登录则页面返回了`illegal character`提示有非法字符。于是我用sqlmap软件data文件夹中的keywords.txt文件中的关键字进行了遍历，发现`and`、`or`、`like`之类的关键字都被过滤掉了，大小写、double型、`/**/`之类的抗过滤也没有成功。过滤的这些关键词里面最关键的还是`or`，因为`information_schema`这个表就无法查询了。
+
+  题目中有提示`!,!=,=,+,-,^,%`这些符号这些没有被过滤。再尝试异或注入，首先构造`admin'^(0)^'`，页面返回`password error`，但是当我们构造`admin'^(1)^'`时，页面返回`username error`.ok，可以使用异或注入。(此外也能通过`admin'-(0)-'`的方式)
+
+  首先可以判断出数据库名称长度等于3`admin'^(length(database())=3)^'`,然后根据盲注的原理，要一个个判断出数据库字符,一般说来是使用`substr/mid/left`函数构造`substr(database(),1,1)='a'`，`mid(database(),1,1)='a'`，`left(database(),1)='a'`之类的语句来猜测内容。现在逗号`,`是被过滤的，尝试`substr(database() from 1 for 1)`,但是`for`也被过滤了。
+
+  现在骚操作来了，可以构造`substr(database()from(1))`,以mysql结果为例：
+  ![sql注入2](../../imgs/Bugku/Web/gnome-shell-screenshot-SIUB6Z.png)  
+
+  因此可以根据之前判断出的数据库名称大小来确定出数据库叫做`ctf`
+
+  虽然有这个骚方法来得到数据库名称，但是下一步获取表名称是没办法了。这是因为`for`被过滤，所以`information_schema`无法查询
+
+  重新再考虑，根据页面中密码表单的名称猜测其与数据库密码字段名称一致
+  ![sql注入2](../../imgs/Bugku/Web/gnome-shell-screenshot-HEC25Z.png)
+
+  所以构造`admin'^(length(passwd)=32)^'`判断出密码长度32(原理仍然不懂)，并通过这个方法构造`admin'^(substr(passwdfrom(1))=a)^'`，经过32次重复，得到passwd密码内容是一串md5码，解得是`admin123`
