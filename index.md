@@ -6,7 +6,10 @@
   - [Misc类](https://lunch650.github.io/Bugku/Misc/)
   - [Web类](https://lunch650.github.io/Bugku/Web/)
 
+- SQL注入
+  - [sqli-lab](https://lunch650.github.io/sqli-lab/)
 
+  
 联系邮箱lunch650@qq.com
 
 <!--
