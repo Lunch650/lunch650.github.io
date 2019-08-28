@@ -29,7 +29,7 @@
 
   使用010editor打开，IHDR这部分包含了长度宽度的值，把高的值修改成和宽一致后再打开拿到flag。010editor真是神器，下  载特定格式文件的分析插件后，可以直接在下面框框内修改内容。以前都是需要在Edit->Insert/Overwrite/里面修改或更新十 六进制内容，修改前还要找修改的内容在哪个地方。
 
-  ![修改长宽高](../../imgs/Bugku//Misc/gnome-shell-screenshot-V3IQXZ.png)   
+  ![修改长宽高](../../imgs/Bugku//Misc/gnome-shell-screenshot-V3IQXZ.png)
 
 ## 4. telnet
 
