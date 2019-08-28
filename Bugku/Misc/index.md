@@ -1,10 +1,10 @@
 # Bugku CTF WriteUp Misc类
 
-1. 签到题
+## 1. 签到题
 
-  没啥好说的，直接关注公众号。
+没啥好说的，直接关注公众号。
 
-2. 这是一张单纯的图片
+## 2. 这是一张单纯的图片
 
   下载题目中提供的文件，是一张萌萌的图片。
 
@@ -23,8 +23,7 @@
   随手使用kali自带的burpsuite翻译，拿到flag
   ![burpsuite解码](../../imgs/Bugku//Misc/gnome-shell-screenshot-VCLQXZ.png)  
 
-
-3. 隐写
+## 3. 隐写
 
   下载题目提供图片，打开报错，kali自带的编辑器还特别贴心的告诉了你是IHDR部分的CRC校验不过。
 
@@ -32,7 +31,7 @@
 
   ![修改长宽高](../../imgs/Bugku//Misc/gnome-shell-screenshot-V3IQXZ.png)   
 
-4. telnet
+## 4. telnet
 
   下载了文件是一个pcap包，大致看了一下是一个telnet通讯的过程~~废话，题目都说了好吗~~
 
@@ -40,9 +39,9 @@
 
   ![跟踪TCP流](../../imgs/Bugku//Misc/gnome-shell-screenshot-U5KPXZ.png)
 
-  额。。   
+  额。。
 
-5. 眼见非实
+## 5. 眼见非实
 
   下载题目提供压缩包，发现里面绝大多数是一些xml配置文件，翻到某个文件看到了flag。
 
@@ -51,7 +50,7 @@
   对于这种题目，因为在之前的考试中也遇到过，是否应该考虑写一个遍历字符串的脚本来处理呢？
   // TODO
 
-6. 啊哒
+## 6. 啊哒
 
   下载题目提供压缩包，里面有一个图片
 
@@ -65,7 +64,7 @@
 
   ![啊哒解压密码](../../imgs/Bugku//Misc/gnome-shell-screenshot-TW2SXZ.png)
 
-7. 又一张图片，还单纯吗
+## 7. 又一张图片，还单纯吗
 
   下载题目图片，binwalk看一下，就知道是来搞事情的。
 
@@ -79,16 +78,15 @@
 
   ![还单纯Flag](../../imgs/Bugku//Misc/gnome-shell-screenshot-32GWXZ.png)  
 
-
-8. 猜
+## 8. 猜
 
   下载图片，发现是女神，答案填写flag{liuyifei}
 
-9. 宽带信息泄露
+## 9. 宽带信息泄露
 
   经过查看其它答案，下载的文件应该是一个路由器保存的配置，需要使用RouterPassView软件，暂时身边没有windows系统的。以后再补。
 
-10. 隐写2
+## 10. 隐写2
 
   下载文件是一个图片
   ![隐写2文件](../../imgs/Bugku//Misc/20190519122253-816x643.png)
@@ -128,7 +126,7 @@
 
   看来是一个base64加密的，解密后拿到flag.
 
-11. 多种方法解决
+## 11. 多种方法解决
 
   下载来是一个KEY.exe文件，使用binwalk无法分析。直接cat看看情况，发现是一个图片。
 
@@ -136,7 +134,7 @@
 
   使用网上现成的base64转图片拿到二维码，扫描后得到flag。
 
-12. 闪得好快
+## 12. 闪得好快
 
   打开题目是一个不停变换的gif二维码图片。
 
@@ -144,7 +142,7 @@
 
   需要分析二维码图片就需要下载一个gif分析工具，叫做stegsolve。因为这个工具kali里面没有，所以先执行以下操作进行安装。
 
-  ```
+  ```bash
   wget http://www.caesum.com/handbook/Stegsolve.jar -O stegsolve.jar
 
   chmod +x stegsolve.jar
@@ -155,7 +153,7 @@
 
   软件打开后首先加载文件，然后使用Analyse->frame Browser就可以一帧一帧的二维码图了。把这18张图片的内容都扫描出来，就是答案了。
 
-13. 白哥的鸽子:
+## 13. 白哥的鸽子
 
   下载来一张图片。binwalk看了一下没什么特别的，用xxd看看16进制，发现末尾有古怪。
 
@@ -169,7 +167,7 @@
 
   ![白哥的鸽子_栅栏密码解密](../../imgs/Bugku//Misc/gnome-shell-screenshot-RSTD2Z.png)
 
-14. linux
+## 14. linux
 
   这个题目有几种解法。
 
@@ -181,7 +179,7 @@
 
   下载到文件后使用`strings flag | grep flag`找其中的flag内容。
 
-15. 隐写3
+## 15. 隐写3
 
   下载来是一个图片。打开后提示CRC校验码出错，考虑是宽高被改动过了无法显示。这边有个小提示，windows下会忽略CRC校验码错误，显示图片。但是linux下会因为CRC校验码出错无法显示。
 
@@ -190,7 +188,8 @@
   ![隐写3图片的16进制](../../imgs/Bugku//Misc/gnome-shell-screenshot-D30H2Z.png)
 
   随便修改了一下高度，图片还是无法显示(如果是windows系统里面，修改就会正常显示了)。于是在网上找了现成的计算代码，运行后会重新生成一个正常的图片。
-  ```
+  
+  ```python
   import zlib
   import struct
   #读文件
@@ -220,4 +219,5 @@
             fw.write(newpic)
             fw.close
   ```
+
   ![隐写3的FLAG](../../imgs/Bugku//Misc/gnome-shell-screenshot-22201Z.png)

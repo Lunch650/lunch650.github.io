@@ -1,25 +1,26 @@
 # Bugku CTF WriteUp WEB
 
-1. web2
+## 1. web2
 
   查看网页源代码，搞定。
 
-2. 计算器
+## 2. 计算器
 
   登陆框只能填入一个数，无法填入完整答案。查看网页源代码修改字数限制，完成。
 
-3. Web基础GET
+## 3. Web基础GET
 
   浏览器地址栏构造相应内容，完成。
 
-4. Web基础POST
+## 4. Web基础POST
 
   我在burpsuite里面构造了没有效果，自己用python写了requests的简单脚本执行就成功了。奇怪。
 
-5. 矛盾
+## 5. 矛盾
 
   给了一个算法
-  ```
+
+  ```php
   $num=$_GET['num'];
   if(!is_numeric($num))
   {
@@ -28,6 +29,7 @@
     echo 'flag{**********}';
   }
   ```
+
   看题目的意思是，需要输出flag，那么需要经过两个判断：
 
   第一个判断是is_numberic($num)，是要求$num不能是数字类型。
@@ -41,23 +43,23 @@
   这道题可以把$num赋值为1开头的任意字符，例如1fdsfsdfsf，那么就能通过两个判断。
   //todo 这是为什么呢?
 
-6. web3
+## 6. web3
 
   打开页面是一个无聊的无限弹窗,ctrl+u查看到源代码后解码,完毕.
 
-7. 域名解析
+## 7. 域名解析
 
   > 听说把 flag.baidu.com 解析到123.206.87.240 就能拿到flag
 
   直接修改/etc/hosts文件就行了
 
-8. 你必须让他停下
+## 8. 你必须让他停下
 
   页面里面有段js是让网页不停的自动刷新.设置浏览器不允许js,然后手动刷新几次界面就看到flag.
 
-9. 本地包含
+## 9. 本地包含
 
-  ```
+  ```php
   <?php
       include "flag.php";
       $a = @$_REQUEST['hello'];
@@ -65,12 +67,13 @@
       show_source(__FILE__);
   ?>
   ```
+
   实际上就是要构造内容传递到eval语句中，将'var_dump('这部分进行闭合。所以可以构造hello的值为);show_source(%27%flag.php27);//
   这个题目最主要的就是有一句eval，var_dump函数无所谓是什么，换成md5函数都是可以的。有点类似SQL注入。
 
-10. 变量1
+## 10. 变量1
 
-  ```
+  ```php
   flag In the variable !
   <?php  
   error_reporting(0);
@@ -84,18 +87,19 @@
         eval("var_dump($$args);");
       }
   ```
+
   粗略看下来这道题目和上一道题目有点像，但是其中多了点花样。一是新加了正则表达式对输入的参数进行过滤，不能够加入特殊符号除字母。二是`eval("var_dump($$args);");`这一句其中的参数有两个$符号。$$args可以理解成$($args)，比如$args='flag',那么$$args=$flag。
   因此考虑到全局变量$GLOBAL中可能包含了flag的信息，因此构造成`?args=GLOBALS`
 
-11. web5
+## 11. web5
 
   打开页面是一个输入框，提示是`JSPFUCK??????答案格式CTF{******}`，之前知道有一个JSFUCK，不知道还有JSPFUCK。。。直接F12看了下源代码，发现熟悉的`)[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([![]]+[][[]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(+![]+[![]]+([]+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+`内容。但是由于这部分内容太多了，F12查看不完整，于是直接右键点击查看源代码拿到全部内容，放到consolo里面运行，拿到flag.
 
-12. 头等舱
+## 12. 头等舱
 
   打开页面什么也没有，看看头文件发现flag。
 
-13. 网站被黑
+## 13. 网站被黑
 
   打开页面发现一个炫酷页面
   说明这个网站已经被黑，页面提示webshell，考虑到存在大马页面，使用kali自带的dirb工具扫描其他页面(这个工具其实蛮好用的)。发现shell页面
@@ -103,20 +107,20 @@
 
   看来是需要爆破了，使用burpsuite一波弱口令破解拿到flag。
 
-14. 管理员系统
+## 14. 管理员系统
 
   首先有一个登陆框，尝试登陆时提示IP受限。F12查看源代码还得到一个BASE64字符串，解码为test123.
   ![管理员系统](../../imgs/Bugku/Web/gnome-shell-screenshot-GRLJ3Z.png)
 
   获得以上信息后首先解决IP受限问题，修改X-Forwarded-For为127.0.0.1，后尝试以test123,test123登陆，提示密码错误。于是把用户名修改为admin，密码为test123成功登陆。
 
-15. Web4
+## 15. Web4
 
   打开页面提示看源代码，发现两个js变量p1,p2.
   ![Web4](../../imgs/Bugku/Web/gnome-shell-screenshot-KKWC3Z.png)
   利用浏览器的Console将两个变量使用unescape函数解析出来，组合成一组字符串。填入框中得到flag。
 
-16. flag在index里
+## 16. flag在index里
 
   根据查看首页、show.php、以及首页上的超链接，考虑到是一个文件包含漏洞。
   ![flag在index里1](../../imgs/Bugku/Web/gnome-shell-screenshot-LZIB3Z.png)
@@ -126,18 +130,19 @@
 
   解码以后得到flag.
 
-17. 输入密码查看flag
+## 17. 输入密码查看flag
 
   一个简单的爆破题目，提示了密码是5个数字。不详细写了。
 
-18. 点击一百万次
+## 18. 点击一百万次
 
   提示查看js，发现要求变量clicks到达100000次才出现flag.于是在console中输入clicks=10000，再次点击中间图案得到flag.
 
-19. 备份是个好习惯
+## 19. 备份是个好习惯
 
   题目提示备份,使用dirb工具查找后缀名为.bak的文件,得到index.php.bak.分析页面内容(后面注释是我添加的)
-  ```
+
+  ```php
   <?php
   include_once "flag.php";
   ini_set("display_errors", 0);
@@ -158,14 +163,15 @@
     }
   ?>
   ```
+
   通过以上代码分析，构造url比较简单，而md5那个地方以前遇到过，是md5和sha1都存在的一个漏洞，因为这两个函数无法解析数组,md5(key1[])会返回false，因此可以通过构造key1[]=a&key2[]=b解决。
   最终构造URL:?kekeyy1[]=a&kkeyey2[]=b
 
-20. 成绩单
+## 20. 成绩单
 
   一道简单的注入题目。不详细写了。
 
-21. 秋名山老司机
+## 21. 秋名山老司机
 
   一道似曾相似的题目。页面中给出了一个超长计算式，需要迅速计算并把结果post到页面中。并且页面有中英文两种版本。
   ![秋名山老司机](../../imgs/Bugku/Web/gnome-shell-screenshot-3VIB3Z.png)
@@ -173,7 +179,8 @@
   ![秋名山老司机](../../imgs/Bugku/Web/gnome-shell-screenshot-7CHG3Z.png)
 
   仔细观察，知道算式是放在一个div里面。于是写出脚本拿到flag：
-  ```
+  
+  ```python
   import requests
   from bs4 import BeautifulSoup
 
@@ -187,9 +194,10 @@
   r_page2 = req.post(url=url,data=result)
   print(r_page2.content)
   ```
+
   需要注意的是，接受页面和提交结果都应该放在一个Session下来做，所以用了`requests.Session()`
 
-22. Web6
+## 22. Web6
 
   从原页面头中得到一个flag参数，里面都是base64码
 
@@ -200,7 +208,8 @@
   ![Web6](../../imgs/Bugku/Web/gnome-shell-screenshot-ZMQN3Z.png)
 
   再解码是一串数字。因为base64码不是不变的，于是写脚本提交数字，拿到flag.
-  ```
+
+  ```python
   import requests
   import base64
 
@@ -215,13 +224,13 @@
   print(r2.content)
   ```
 
-23. cookies欺骗
+## 23. cookies欺骗
 
   呼，感觉者这几题都是需要写代码，好麻烦。
   页面打开就发现URL不平常，包含了两个参数分别是line和filename
   解析字符串a2V5cy50eHQ=发现是keys.txt的base64码。于是把index.php进行base64编码后替换filename的值，再对代表行数的line不停的赋值1，2，3，4。。。,就得到了index.php文件的源代码。
 
-  ```
+  ```php
   error_reporting(0);
   $file=base64_decode(isset($_GET['filename'])?$_GET['filename']:"");
   $line=isset($_GET['line'])?intval($_GET['line']):0;
@@ -239,10 +248,11 @@
     }
   ?>
   ```
+
   看来是需要在COOKIE中加入margin。并且filename的文件名改成keys.php的base64码
   ![cookies欺骗](../../imgs/Bugku/Web/gnome-shell-screenshot-3JS82Z.png)
 
-24. never give up
+## 24. never give up
 
   打开页面没什么内容，F12查看源代码得到一个页面地址1p.html
   ![never_give_up](../../imgs/Bugku/Web/gnome-shell-screenshot-90RC3Z.png)  
@@ -252,14 +262,15 @@
   解密后就看到有点复杂的逻辑，但是不用管它。直接发现有个f4l2a3g.txt文件，访问后拿到flag
   ![never_give_up](../../imgs/Bugku/Web/gnome-shell-screenshot-ZKZA3Z.png)
 
-25. welcome to bugkuctf
+## 25. welcome to bugkuctf
 
   有意思的一道题，介绍了CTF题目中常用两个的PHP伪协议(为什么总是php??)。
 
   ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-XMXG4Z.png)
 
   可以看到页面中给了这样的提示：
-  ```
+  
+  ```php
   <!--  
   $user = $_GET["txt"];  
   $file = $_GET["file"];  
@@ -273,6 +284,7 @@
       }  
   -->
   ```
+
   提示内容很简单，if判断语句是要保证两个条件同时满足：一是URL中传递的txt值不能为空。二是我一开始认为txt值应该是一个文件名称，这样的话file_get_contents函数读取txt名称的文件，而文件中内容恰好是'welcome to the bugkuctf'。
 
   后来发现我对第二个条件的认识是错误的。我用dirb扫描没有找到其他文件的存在，也就是说不存在可以通过file_get_contents函数读取的文件。
@@ -288,7 +300,8 @@
   ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-43O33Z.png)
 
   解码后：
-  ```
+
+  ```php
   /*hint.php*/
   <?php  
 
@@ -297,20 +310,22 @@
       public function __tostring(){  
           if(isset($this->file)){  
               echo file_get_contents($this->file);
-			        echo "<br>";
-		          return ("good");
+              echo "<br>";
+              return ("good");
                  }  
                }  
              }  
-  ?>    
+  ?>
   ```
+
   还有点复杂的感觉。以上代码告知了这么一个情况:有个flag.php文件，里面有一个Flag类，`__tostring`方法说明当打印Flag实例的时候，会输出Flag实例中的$file变量值。
 
   先尝试直接打印flag内容，发现不行
   ![welcome_to_bugkuctf](../../imgs/Bugku/Web/gnome-shell-screenshot-33EA4Z.png)
 
   还记得之前说过index.php文件还有内容我们没有发现吗，构造`file=php://filter/read=convert.base64-encode/resource=index.php`查看一下index.php文件内容。
-  ```
+  
+  ```php
   <?php  
   $txt = $_GET["txt"];  
   $file = $_GET["file"];  
@@ -319,10 +334,10 @@
   if(isset($txt)&&(file_get_contents($txt,'r')==="welcome to the bugkuctf")){  
       echo "hello friend!<br>";  
       if(preg_match("/flag/",$file)){
-		      echo "ä¸è½ç°å¨å°±ç»ä½ flagå¦";
+        echo "ä¸è½ç°å¨å°±ç»ä½ flagå¦";
           exit();  
         }else{  
-            include($file);   
+            include($file);
             $password = unserialize($password);  
             echo $password;  
           }  
@@ -331,6 +346,7 @@
           }  
   ?>
   ```
+
   很明显，第二个if函数说明了file参数不能包含flag字符。结合hint.php文件中的内容说明一下，$password应该是Flag实例序列化后的字符串，因此反序列化$password(就是将已经被序列化为$password字符串的对象复原)后，echo $password就会调用Flag类中的__toString方法，而__toString方法是打印类中的file属性值。目前就是需要打印出flag.php页面，所以我们把实例的file值等于'flag.php'
 
   第一步，构造Flag类，Flag类的file属性等于flag.php，并将其实例化
@@ -342,7 +358,7 @@
 
   需要注意的是此时不需要对hint.php文件进行base64编码。因为编码的目的是为了展示页面源代码，现在的目的不用展示，是把Flag类的定义进行引用。
 
-26. 字符？正则？
+## 26. 字符？正则
 
   又到了一年一度的“为什么我怎么总是学不会正则表达式？？为什么一学就忘”的无能狂怒时间。
   ![正则](../../imgs/Bugku/Web/gnome-shell-screenshot-KUJ33Z.png)
@@ -357,7 +373,7 @@
   4. `:\/.\/(.* key)` 前面的`\/`部分是指匹配`/`，`\`是用于转义。所以当前构造`?id=keyaakeybbbbkey:/c/dkey`
   5. `[a-z][[:punct:]]` 第一个是任意a-z英文字母，后面框框是指任意符号。最后构造的结果是：`?id=keyaakeybbbbkey:/c/dkeye-`，得到flag
 
-27. 前女友
+## 27. 前女友
 
   根据源代码的提示看到code.txt内容。
   ![正则](../../imgs/Bugku/Web/gnome-shell-screenshot-SE6C4Z.png)
@@ -366,7 +382,7 @@
 
   `?v1[]=a&v2[]=b&v3[]=c`
 
-28. login1
+## 28. login1
 
   页面提示`SQL约束攻击`，点进去看到是一个普通的登陆页面和注册页面。
   ![login1](../../imgs/Bugku/Web/gnome-shell-screenshot-9BVJ4Z.png)
@@ -376,15 +392,15 @@
 
   根据提示找了一下SQL约束攻击的大概意思。比如当前的条件是：我创建了一个表，表里面的username字段格式是varchar(25)，而且当前录入了`admin`进去。这时候如果我再注册admin，就会提示我admin已存在。但是如果我注册了一个用户`admin   (20个空格)a`那么数据库在判断的时候首先会认为`admin   (20个空格)a`和`admin`不是一样的内容，然后把`admin   (20个空格)a`前面25个字符截断后存入。这时候就能用新注册的那个密码覆盖掉以前的密码。就完成了所谓的`SQL约束攻击`。最终拿到flag.
 
-29. 你从哪里来
+## 29. 你从哪里来
 
   看题目就知道是一个考察referer用法的，比较简单。只是注意一下一般都要写成`http://xxx.com`这样的格式。
 
-30. md5 collision
+## 30. md5 collision
 
   题目上来就要求给一个a的值`please input a`。在URL后面构造?a=1后页面提示`false`。在网上找到这个题目页面的源代码(为什么给我的题目里面没有源代码？)
 
-  ```
+  ```php
   <?php
   $md51 = md5('QNKCDZ0');
   $a = @$_GET['a'];
@@ -399,19 +415,20 @@
         else{echo "please input a";}
         ?>
   ```
+
   可以看到要求是a的值不能等于`QNKCDZ0`，但是`QNKCDZ0`的MD5值要和a的MD5值相等。这个题目和之前我们做的比较两个变量md5值得题目不一样的地方在于：之前的题目我们可以控制两个比较的变量，这个题目只能控制一个。于是我们先看看`md5('QNKCDZ0')`的值是`0e8304004519934940580242199033910`，好的有搞头了，因为php这个伟大的语言会把0e开头的哈希字符串认为是0，所以当md5函数计算出来的值是以0e开头的，那么PHP就会把它认为是0了(提示:MD5就是进行hash运算)。所以我们只需要把a的值构造成一个md5值开头为0e的字符串就行。网上找到`a=s878926199a`。拿到flag.
 
-31. 程序员本地网站
+## 31. 程序员本地网站
 
   一个考察X-Forwarded-For的，就不详细写了。
 
-32. 各种绕过
+## 32. 各种绕过
 
   ![各种绕过](../../imgs/Bugku/Web/gnome-shell-screenshot-CPNN4Z.png)
 
   考验sha1函数数组漏洞以及post\get方式提交，没什么难度。但是有个问题，我使用burpsuite怎么提交都出不了flag，后来写了Python小脚本才出现的。看来有必要下载一个hackbar之类的工具。
 
-33. web8
+## 33. web8
 
   ![web8](../../imgs/Bugku/Web/gnome-shell-screenshot-KIVR4Z.png)
 
@@ -428,7 +445,7 @@
 
   奇怪的是，这个方法我用hackbar根本不出结果，用burp就有结果，晕了。
 
-34. 细心
+## 34. 细心
 
   ![细心](../../imgs/Bugku/Web/gnome-shell-screenshot-ONFN4Z.png)
 
@@ -440,7 +457,7 @@
 
   ![细心](../../imgs/Bugku/Web/gnome-shell-screenshot-38LP4Z.png)
 
-35. 求getshell
+## 35. 求getshell
 
   题目如下:
   
@@ -468,18 +485,18 @@
 
   一般说来，上传验证有几种套路:
 
-  - 客户端JavaScript验证:
-    这种的没啥难度。绕过方式是直接抓包修改就行。
-  - 文件后缀验证:
-    就是上图第2个验证，绕过方式是抓包修改,可以使用其他名称如php2,php3,php4,PhP等绕过后缀名黑名单检验。
-  - Content-type验证:
-    就是上图第3个验证，绕过方式是抓包修改。
-  - 文件头验证:
-    比如服务器要求上传的是gif格式的文件，他会验证上传内容的开头符不符合gif格式文件的开头，绕过方式是在Burpsuite中抓包修改，加入GIF格式头，例如:`GIF89a<?php phpinfo(); ?>`
-  - 文件内容检测验证：
-    这个就有点骚包了。验证会对上传内容进行验证，过滤点一些敏感函数，例如assert、eval等。这时候可以用两步操作：**第一步**上传内容为一句话的txt文件。**第二步**`<?php include('xxx.txt');?>`
+- 客户端JavaScript验证:
+  这种的没啥难度。绕过方式是直接抓包修改就行。
+- 文件后缀验证:
+  就是上图第2个验证，绕过方式是抓包修改,可以使用其他名称如php2,php3,php4,PhP等绕过后缀名黑名单检验。
+- Content-type验证:
+  就是上图第3个验证，绕过方式是抓包修改。
+- 文件头验证:
+  比如服务器要求上传的是gif格式的文件，他会验证上传内容的开头符不符合gif格式文件的开头，绕过方式是在Burpsuite中抓包修改，加入GIF格式头，例如:`GIF89a<?php phpinfo(); ?>`
+- 文件内容检测验证：
+  这个就有点骚包了。验证会对上传内容进行验证，过滤点一些敏感函数，例如assert、eval等。这时候可以用两步操作：**第一步**上传内容为一句话的txt文件。**第二步**`<?php include('xxx.txt');?>`
 
-36. INSERT INTO注入
+## 36. INSERT INTO注入
 
   ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-B8C24Z.png)
 
@@ -508,7 +525,8 @@
 
   现在已经构造好大致的payload框架，然后是按照需要在刚才的sleep()函数附近修改内容。常规操作是使用if(条件判断,内容为真时延迟sleep(n),内容为假时)，但由于题目条件第二条对逗号进行了过滤不能直接使用if函数，那么换个姿势使用`CASE WHEN 条件判断 THEN 延迟SLEEP(5) ELSE 1 END`
 
-  1. 第一步是试探数据库的字符数，构造语句`1' and (SELECT CASE WHEN  length(database())=1 THEN SLEEP(5) ELSE 1 END) AND '1'='1`在burp里面跑一下(burp的设置见https://www.jianshu.com/p/5d34b3722128)
+  第一步是试探数据库的字符数，构造语句`1' and (SELECT CASE WHEN  length(database())=1 THEN SLEEP(5) ELSE 1 END) AND '1'='1`在burp里面跑一下(burp的设置见<https://www.jianshu.com/p/5d34b3722128>)
+  
   其中length(database())的数值设置为变量。
   ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-PD9K4Z.png)
 
@@ -518,7 +536,7 @@
   走两步：
   ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-4GT34Z.png)
 
-  2. 第二步是按照顺序一个个猜测字符内容。`1' and (SELECT CASE WHEN  substr(database() from 1 for 1)='a' THEN SLEEP(5) ELSE 1 END) AND '1'='1`
+  第二步是按照顺序一个个猜测字符内容。`1' and (SELECT CASE WHEN  substr(database() from 1 for 1)='a' THEN SLEEP(5) ELSE 1 END) AND '1'='1`
 
   需要注意的是由于逗号被过滤了，因此`limit 1,1`这种是无法完成的，但是可以通过`from 1 for 1`实现替代。此外这个payload里面有两个地方需要进行替换，第一个是`from 1 for 1`的第一个1，第一步我们得到database()名称一共有5个字符，所以第一个1，应该是1-5。第二个是`'a'`应该遍历所有字符来测试。
   让我们看看这样两个变量是怎么通过burp操作的。
@@ -534,11 +552,11 @@
 
   设置好以后开始攻击，最后查看timeout的反馈页面拿到结果：web15
 
-  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-O5R34Z.png)    
+  ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-O5R34Z.png)
 
   虽然达成目的了，但是这种方法的效率是非常低的，因为如果在对第一个字符的第一次测试中就知道结果是a,那么实际上是不用继续测试'bcdefg...'的。但是机器不知道我们拿到需要的结果还会继续测试。因此需要找找其他方法来完成这个猜测的过程。
 
-  3. 继续按照套路猜测表名称，我们先试试所有表名称共有多少个字符:
+  第三步，继续按照套路猜测表名称，我们先试试所有表名称共有多少个字符:
   `1' and (select case when ((select length(group_concat(table_name)) from information_schema.tables where table_schema=database())=§1§) then sleep(5) else 1 end) and '1'='1`
   话说没有一个检查SQL语句的编辑器的话，在burp里面写这些内容真容易弄错.
 
@@ -546,17 +564,18 @@
 
   ![INSERT_INTO注入](../../imgs/Bugku/Web/gnome-shell-screenshot-UBPP4Z.png)
 
-  4. 一个个猜测表名称的字符内容。
+  第四步，一个个猜测表名称的字符内容。
 
   `1' and (select case when (select ('§a§'=substr((select group_concat(table_name) from information_schema.tables where table_schema=database()) from §1§ for 1))) then sleep(5) else 1 end)  and '1'='1`
 
   最后就可以拿到flag了
 
-37. PHP_encrypt_1(ISCCCTF)
+## 37. PHP_encrypt_1(ISCCCTF)
 
   太难了。
   需要照着一个加密函数，写出对应的解密函数。
-  ```
+
+  ```php
   function encrypt($data,$key)
 {
     $key = md5('ISCC');
@@ -580,7 +599,7 @@
 #output:fR4aHWwuFCYYVydFRxMqHhhCKBseH1dbFygrRxIWJ1UYFhotFjA=
   ```
 
-38. 文件包含2
+## 38. 文件包含2
 
   ![文件包含2](../../imgs/Bugku/Web/gnome-shell-screenshot-ASAI5Z.png)
 
@@ -614,7 +633,7 @@
 
   然后这个页面目录下有一个flag文件，查看后拿到flag，就不赘述。
 
-39. flag.php
+## 39. flag.php
 
   打开页面有个登陆框，
   ![flag.php](../imgs/Bugku/Web/gnome-shell-screenshot-YYCQ5Z.png)
@@ -622,7 +641,8 @@
   尝试了一下发现这个登陆框没什么作用，action后面没有跟页面地址。
 
   题目中有提示hint，修改URL为`/flagphp/?hint`,出现内容。
-  ```
+
+  ```php
   <?php
   error_reporting(0);
   include_once("flag.php");
@@ -631,7 +651,7 @@
     show_source(__FILE__);
   }
   elseif (unserialize($cookie) === "$KEY")
-  {   
+  {
     echo "$flag";
   }
   else {
@@ -658,17 +678,20 @@
   $KEY='ISecer:www.isecer.com';
   ?>
   ```
+
   其中最关键的一步是`elseif (unserialize($cookie) === "$KEY")`。审计代码发现实际上`$KEY`是没有定义的，在PHP中，没有定义就使用的变量值是空字符串(世界上最伟大的PHP语言)。所以我们只需要将空字符串序列化后传递给Cookie，然后`unserialize($cookie)`就可以得到空字符串了。
-  ```
+
+  ```php
   <?php
     $a="";
     print(serialize($a));
   ?>
   ```
+  
   得到的值是`s:0:"";`,传入Cookie为:
   `Cookie: s:0:"";`(网上的writeup说需要将分号用url编码才行，实际上是不需要的。随便抓个包就知道实际上http头是允许出现分号的。)，最后拿到flag。
 
-40. sql注入2
+## 40. sql注入2
 
   打开页面是一个登陆框
   ![sql注入2](../../imgs/Bugku/Web/gnome-shell-screenshot-Y6JB6Z.png)
