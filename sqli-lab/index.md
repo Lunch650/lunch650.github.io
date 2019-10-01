@@ -25,7 +25,11 @@ $dbname1 = "challenges";
 - mysqld_safe - -skip-grant-tables
 就可以开始使用了。(有时候执行这个命令也不行就换成-service mysql start)
 
-又用了一段时间，这个版本的sqli-lab好像也不太对。于是学习了docker，按照教程安装了docker版的sqli-lab。(docker真的方便)
+又用了一段时间，这个版本的sqli-lab好像也不太对。于是学习了docker，按照教程安装了docker版的sqli-lab。(docker真的方便).
+
+要使用时首先在服务中启用`service docker start`,随后`docker run -dt --name sqli-lab -p 8888:80 --rm acgpiano/sqli-labs`，其中`-dt`是让其在后台运行，`--name`将其命名为`sqli-lab`,`-p`是映射端口号，前面的端口号是本地端口号，后面的端口号是docker中的端口号,`--rm`是完成后删除开启的资源。
+
+完成以上步骤后就可以在浏览器打开使用了。
 
 ## 0x01 Basic Challenges
 
@@ -279,3 +283,7 @@ $dbname1 = "challenges";
 14. Less-32 Bypass addslashes()
 
     题目提示了有`addslashes()`函数，也就是说在进行一些特殊符号输入的时候会被加上转义符。例如我们输入`?id=1'`就会被转义成`?id=1\'`。对于这种过滤方式一般可以采取两种对策，一种是在payload中加入单数量的反斜杠`\`，但是这一关我试过没作用。第二种方法是尝试进行宽字符注入。构造`?id=1%df%27 --+`进行闭合。
+
+15. Less-33 Bypass addslashes()
+
+    这个题目和上个题目差不多，使用`?id=-1%df%27%20union%20select%201,2,3%23`可以进行注入，但是要注意的是当查询列名称的时候由于`addslashes()`函数过滤了单引号，所以`select column_name from information_schema.columns where table_name='users'`这一句最后指明表名称的时候需要替换为16进制。
