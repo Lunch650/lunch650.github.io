@@ -196,7 +196,10 @@ $dbname1 = "challenges";
 
 19. Less-19 Header Injection- Referer- Error Based- string
 
-    我手上这个版本的这道题目好像有点问题，是一个referer注入的题目，跳过。
+    这个题目和上一个题目类似，直接使用报错注入或者时间注入
+
+    报错注入：`1' and (extractvalue(1,concat(0x7e,(payload),0x7e))) and '1'=1`
+    时间盲注：`1' and (select sleep(5)) and '1'='1`
 
 20. Less-20 Cookie Injection- Error Based- string
 
